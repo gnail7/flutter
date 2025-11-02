@@ -15,6 +15,10 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Login Demo',
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white, // 全局白色背景
+        primarySwatch: Colors.blue,            // 可选，全局主题色
+      ),
       initialRoute: AppRoutes.login, // 默认启动页
       getPages: AppPages.routes, // 路由表
     );
