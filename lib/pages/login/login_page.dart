@@ -1,61 +1,17 @@
-// lib/pages/login_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/constant/app_colors.dart';
-import 'package:op_flutter/models/login/login_request.dart';
-import 'package:op_flutter/network/login/api.dart';
+import 'package:op_flutter/pages/login/login_controller.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  // 1. 创建一个全局 key，用来访问表单状态
-  final _formKey = GlobalKey<FormState>();
-
-  String _username = '';
-  String _password = '';
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-
-  // 🔹 抽取登录逻辑
-  void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // 这里可以调用接口或做其他操作
-      print('账号：$_username，密码：$_password');
-      try{
-        final request = LoginRequest(username: _username, password: _password);
-        final res = await loginApi({'username': _username, 'password': _password});
-
-        Get.offAllNamed(AppRoutes.home); // 使用 GetX 路由跳转并清空历史栈
-
-      } catch (e) {
-        print('登录失败: $e');
-        Get.snackbar('登录失败', e.toString(),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent.withOpacity(0.8),
-            colorText: Colors.white);
-      }
-      }
-    }
-
-
-  @override
   Widget build(BuildContext context) {
+    // 获取 LoginController 实例
+    final LoginController controller = Get.put(LoginController(), permanent: true);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -88,15 +44,16 @@ class _LoginPageState extends State<LoginPage> {
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
                   child: Form(
-                    key: _formKey,
                     child: Column(
                       children: [
-                        TextFormField(
+                        // 账号输入框
+                        Obx(() => TextFormField(
+                          initialValue: controller.username.value,
                           decoration: InputDecoration(
                             labelText: '账号',
                             prefixIcon: const Icon(Icons.person),
@@ -104,16 +61,15 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return '账号不能为空';
-                            }
-                            return null;
+                          onChanged: (value) {
+                            controller.username.value = value;
                           },
-                          onSaved: (value) => _username = value ?? '',
-                        ),
+                        )),
                         const SizedBox(height: 16),
-                        TextFormField(
+
+                        // 密码输入框
+                        Obx(() => TextFormField(
+                          initialValue: controller.password.value,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: '密码',
@@ -122,20 +78,22 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.length < 6) {
-                              return '密码至少 6 位';
-                            }
-                            return null;
+                          onChanged: (value) {
+                            controller.password.value = value;
                           },
-                          onSaved: (value) => _password = value ?? '',
-                        ),
+                        )),
                         const SizedBox(height: 30),
-                        SizedBox(
+
+                        // 登录按钮
+                        Obx(() => SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _handleLogin, // 直接调用抽取的方法
+                            onPressed: controller.isLoading.value
+                                ? null // 如果正在加载，则禁用按钮
+                                : () {
+                              controller.handleLogin();
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColor.primaryColor,
                               shadowColor: Colors.transparent,
@@ -143,12 +101,16 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(25),
                               ),
                             ),
-                            child: const Text(
+                            child: controller.isLoading.value
+                                ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                                : const Text(
                               '登录',
                               style: TextStyle(fontSize: 18, color: Colors.white),
                             ),
                           ),
-                        ),
+                        )),
                       ],
                     ),
                   ),
@@ -182,5 +144,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
 }

@@ -1,9 +1,12 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/pages/login/login_controller.dart';
 import 'routes/app_routes.dart';
 
 void main() {
+  Get.put(LoginController(), permanent: true); // permanent: true 保证不会被释放
+
   runApp(const MyApp());
 }
 
