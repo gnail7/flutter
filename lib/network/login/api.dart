@@ -8,3 +8,11 @@ Future<dynamic> loginApi(Map<String, dynamic> request) async {
     method: 'POST',
   );
 }
+
+
+Future<dynamic> fetchUserInfo() async {
+  return await DioManager.request(
+    '/api/users',
+    method: 'GET'
+  );
+}

@@ -36,7 +36,7 @@ class TodoController extends GetxController {
 class TodoListPage extends StatelessWidget {
   TodoListPage({super.key});
 
-  final TodoController controller = Get.put(TodoController());
+  final TodoController controller = Get.find();
   final TextEditingController _textController = TextEditingController();
 
   @override

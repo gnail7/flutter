@@ -1,9 +1,41 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../routes/app_routes.dart'; // 引入路由常量
+import 'package:op_flutter/pages/login/login_controller.dart';
+import 'package:op_flutter/widgets/todolist/todolist.dart';
+import '../../routes/app_routes.dart';
+
+// 时间控制器
+class TimeController extends GetxController {
+  var currentTime = ''.obs;
+  var currentDate = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _updateTime();
+    Timer.periodic(const Duration(seconds: 1), (timer) => _updateTime());
+  }
+
+  void _updateTime() {
+    final now = DateTime.now();
+    currentTime.value = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    currentDate.value =
+    "${now.year}年${now.month.toString().padLeft(2, '0')}月${now.day.toString().padLeft(2, '0')}日  ${_getWeekday(now.weekday)}";
+  }
+
+  String _getWeekday(int weekday) {
+    const week = ['一', '二', '三', '四', '五', '六', '日'];
+    return '星期${week[weekday - 1]}';
+  }
+}
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  final TimeController timeController = Get.put(TimeController());
+  final TodoController todoController = Get.find();
+  final LoginController loginController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +62,20 @@ class HomePage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Good Morning,',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                            style:
+                            TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                           ),
-                          Text(
-                            'Frede 👋',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
+                          Obx(() {
+                            return Text(
+                              '${loginController.username.value} 👋',
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            );
+                          }),
                         ],
                       ),
                       IconButton(
@@ -50,57 +85,37 @@ class HomePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  // ✅ 添加 Todo 概览卡片
+                  Obx(() => _buildTodoCard(
+                    completed: todoController.completed,
+                    pending: todoController.pending,
+                  )),
+                  const SizedBox(height: 24),
 
-                  // 两个卡片
+                  // 时间 & 日期 卡片
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          height: 120,
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEAD8FF),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Center(child: Text("Hang out")),
-                        ),
+                        child: Obx(() => _buildTimeCard(
+                          title: "当前时间",
+                          value: timeController.currentTime.value,
+                          color1: 0xFF93C5FD,
+                          color2: 0xFF3B82F6,
+                          icon: Icons.access_time,
+                        )),
                       ),
                       Expanded(
-                        child: Container(
-                          height: 120,
-                          margin: const EdgeInsets.only(left: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF004C6D),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Laugh",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
+                        child: Obx(() => _buildTimeCard(
+                          title: "今天日期",
+                          value: timeController.currentDate.value,
+                          color1: 0xFFBBF7D0,
+                          color2: 0xFF22C55E,
+                          icon: Icons.calendar_today,
+                        )),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-
-                  // Stress Indicator
-                  Container(
-                    height: 140,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Center(child: Text("Stress indicator")),
-                  ),
                   const SizedBox(height: 24),
 
                   // -------------------- 模块 Tabs --------------------
@@ -129,8 +144,10 @@ class HomePage extends StatelessWidget {
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   children: [
-                                    _buildCard("用什么状态管理", 0xFFF3E5F5, Icons.settings, AppRoutes.stateWhat),
-                                    _buildCard("如何状态管理", 0xFFE3F2FD, Icons.lightbulb, AppRoutes.stateHow),
+                                    _buildCard("用什么状态管理", 0xFFF3E5F5,
+                                        Icons.settings, AppRoutes.stateWhat),
+                                    _buildCard("如何状态管理", 0xFFE3F2FD,
+                                        Icons.lightbulb, AppRoutes.stateHow),
                                   ],
                                 ),
                               ),
@@ -139,8 +156,10 @@ class HomePage extends StatelessWidget {
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   children: [
-                                    _buildCard("用什么路由管理", 0xFFFFCDD2, Icons.navigation, AppRoutes.routerWhat),
-                                    _buildCard("如何路由管理", 0xFFFFF9C4, Icons.map, AppRoutes.routerHow),
+                                    _buildCard("用什么路由管理", 0xFFFFCDD2,
+                                        Icons.navigation, AppRoutes.routerWhat),
+                                    _buildCard("如何路由管理", 0xFFFFF9C4,
+                                        Icons.map, AppRoutes.routerHow),
                                   ],
                                 ),
                               ),
@@ -149,8 +168,10 @@ class HomePage extends StatelessWidget {
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   children: [
-                                    _buildCard("用什么网络请求", 0xFFE1BEE7, Icons.cloud, AppRoutes.networkWhat),
-                                    _buildCard("如何网络请求", 0xFFB2DFDB, Icons.send, AppRoutes.networkHow),
+                                    _buildCard("用什么网络请求", 0xFFE1BEE7,
+                                        Icons.cloud, AppRoutes.networkWhat),
+                                    _buildCard("如何网络请求", 0xFFB2DFDB,
+                                        Icons.send, AppRoutes.networkWhat),
                                   ],
                                 ),
                               ),
@@ -161,7 +182,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // -------------------- End Tabs --------------------
                 ],
               ),
             ),
@@ -171,11 +191,60 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // -------------------- 卡片构建方法 --------------------
+  // 时间卡片
+  Widget _buildTimeCard({
+    required String title,
+    required String value,
+    required int color1,
+    required int color2,
+    required IconData icon,
+  }) {
+    return Container(
+      height: 150,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(color1), Color(color2)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 32),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(value,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 模块卡片
   Widget _buildCard(String title, int color, IconData icon, String routeName) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(routeName); // 点击跳转
+        print('routername $routeName');
+        Get.toNamed(routeName);
       },
       child: Container(
         width: 160,
@@ -204,4 +273,66 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildTodoCard({required int completed, required int pending}) {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(AppRoutes.stateWhat); // 点击跳转到 TodoList 页面
+      },
+      child: Container(
+        height: 120,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4FACFE), Color(0xFF00F2FE)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.white, size: 36),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "今日待办事项",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "未完成：$pending | 已完成：$completed",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }
+
+
