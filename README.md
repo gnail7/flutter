@@ -184,7 +184,8 @@ class _ParentWidgetState extends State<ParentWidget> {
 #### getX 的使用
 
 controller 注册，依赖注入、响应式状态更新、全局状态共享。
-通过`.obs`进行响应式变量的注册，然后在需要用到对应状态的 widget 中依赖注册`final LoginController controller = Get.put(LoginController(), permanent: true);`,在 build 的 widget 树中将需要响应式更新的部分使用`obx`监听，当状态发生变化的时候会自动重新生成对应的 widget。全局注册对应的状态`Get.put(LoginController(), permanent: true); // permanent: true 保证不会被释放`
+通过`.obs`进行响应式变量的注册，然后在需要用到对应状态的 widget 中依赖注册`final LoginController controller = Get.put(LoginController(), permanent: true);`,在 build 的 widget 树中将需要响应式更新的部分使用`obx`监听，当状态发生变化的时候会自动重新生成对应的 widget。全局注册对应的状态`Get.put(LoginController(), permanent: true); // permanent: true 保证不会被释放`.
+[todolist 的例子讲解]
 
 ### 生命周期
 
@@ -201,3 +202,210 @@ didUpdateWidget(oldWidget) │
 deactivate() ────────────────┘
 │
 dispose()
+
+#### 路由管理
+
+getX 同样能够进行路由管理，路由管理就是对 app 的所有的页面进行一个管理，包含路由跳转的行为，路由守卫的拦截。
+
+- 路由表的注册
+
+```
+
+  // lib/routes/app_pages.dart
+import 'package:get/get.dart';
+import 'package:op_flutter/pages/State/StateWhat/state_what.dart';
+import 'package:op_flutter/pages/chatRoom/chart_room.dart';
+import 'package:op_flutter/pages/home/home_page.dart';
+import 'package:op_flutter/pages/requestDemo/request_demo.dart';
+import 'package:op_flutter/pages/routeDemo/route_demo.dart';
+import 'package:op_flutter/pages/routeDemo/route_guard.dart';
+import '../pages/login/login_page.dart';
+
+  /// 所有路由路径定义
+  class AppRoutes {
+    static const login = '/login';
+    static const home = '/home';
+    static const demo = '/stateDemo';
+
+    // 状态管理模块
+    static const stateWhat = '/state/what';
+    static const stateHow = '/state/how';
+
+    // 路由管理模块
+    static const routerWhat = '/router/what';
+    static const routerHow = '/router/how';
+    static const routerGuard = '/guard';
+
+    // 网络请求模块
+    static const networkWhat = '/network/what';
+
+    static const sdkAbility = '/sdk';
+  }
+
+  /// 所有路由页面配置
+  class AppPages {
+    static final routes = [
+      GetPage(
+        name: AppRoutes.login, // 路由路径
+        page: () => LoginPage(), // 对应页面
+      ),
+      GetPage(
+        name: AppRoutes.home, // 路由路径
+        page: () => HomePage(), // 对应页面
+      ),
+      GetPage(name: AppRoutes.stateWhat, page: () => StateWhat()),
+      GetPage(name: AppRoutes.routerWhat, page: () => RouteShowcasePage()),
+      GetPage(name: AppRoutes.routerGuard, page: () => TodoSummaryPage(), middlewares: [TodoGuard()]),
+      GetPage(name: AppRoutes.networkWhat, page: () => RequestDemoPage()),
+      GetPage(name: AppRoutes.sdkAbility, page: () => ChatRoomPage())
+    ];
+  }
+
+```
+
+- 路由表的注册
+
+```
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Login Demo',
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white, // 全局白色背景
+        primarySwatch: Colors.blue,            // 可选，全局主题色
+      ),
+      initialRoute: AppRoutes.login, // 默认启动页
+      getPages: AppPages.routes, // 路由表
+    );
+  }
+}
+```
+
+那么现在就可以控制路由的跳转了。
+跳转的方法和我们的 vue-router 用法类似。(换成图片)
+
+```
+
+方法	路由栈行为	是否可传参数	异步返回
+Get.to()	push	✅	✅
+Get.off()	替换当前	✅	✅
+Get.offAll()	清空栈	✅	✅
+Get.toNamed()	push	✅	✅
+Get.offNamed()	替换当前	✅	✅
+Get.offAllNamed()	清空栈	✅	✅
+Get.back()	pop	✅	✅
+如何携带参数进行跳转
+
+方式	使用方法	特点
+arguments	Get.to(() => Page(), arguments: {...})	传任意对象，灵活
+路径参数	Get.toNamed('/page/:id')	URL 风格，方便 Deep Link / Web
+```
+
+ - 路由的前置守卫（相当于中间件）
+
+
+ #### 网络请求部分
+
+flutter官方推荐的网络请求库`dio`。来实现网络请求的能力。
+使用单例模式进行一个全局的网络请求的封装，思路上与我们在开发前端项目其实是一致的。
+首先就是这个dioManager类的初始化，传入基础请求地址，请求头。因为这个是全局公共的配置，所以全局都应该是需要用的同一个实例对象，且这个实例对象只可读，不可修改。
+cancelToken就是用于中断请求的，这种场景也是蛮多的比如说请求接口长时间没有响应这个时候需要中断这次请求重新发起一次请求。和js原生提供的`AbortController`的作用类似
+```
+
+import 'package:dio/dio.dart';
+
+class DioManager {
+  static final DioManager _instance = DioManager._internal();
+  factory DioManager() => _instance;
+
+  late Dio dio;
+
+  DioManager._internal() {
+    BaseOptions options = BaseOptions(
+      baseUrl: 'https://jsonplaceholder.typicode.com/', // 全局 baseUrl
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    dio = Dio(options);
+
+    // 添加拦截器
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          print('📤 请求: ${options.method} ${options.path}');
+          print('请求参数: ${options.data}');
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          print('📥 响应: ${response.data}');
+          return handler.next(response);
+        },
+        onError: (DioError e, handler) {
+          print('❌ 错误: ${e.message}');
+          return handler.next(e);
+        },
+      ),
+    );
+  }
+
+  /// GET 请求
+  Future<Response> get(String path,
+      {Map<String, dynamic>? queryParameters, CancelToken? cancelToken}) async {
+    try {
+      Response response = await dio.get(
+        path,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return response;
+    } on DioError catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// POST 请求
+  Future<Response> post(String path,
+      {dynamic data, Map<String, dynamic>? queryParameters, CancelToken? cancelToken}) async {
+    try {
+      Response response = await dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return response;
+    } on DioError catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// 错误处理
+  Exception _handleError(DioError e) {
+    switch (e.type) {
+      case DioErrorType.connectionTimeout:
+        return Exception('连接超时');
+      case DioErrorType.receiveTimeout:
+        return Exception('接收超时');
+      case DioErrorType.badResponse:
+        return Exception('服务器错误: ${e.response?.statusCode}');
+      case DioErrorType.cancel:
+        return Exception('请求取消');
+      default:
+        return Exception('未知错误: ${e.message}');
+    }
+  }
+}
+
+```
+
+### 扩展能力
+
+#### 调用本地sdk以及pos机器的sdk
