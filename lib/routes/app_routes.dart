@@ -1,11 +1,12 @@
   // lib/routes/app_pages.dart
-  import 'package:get/get.dart';
+import 'package:get/get.dart';
 import 'package:op_flutter/pages/State/StateWhat/state_what.dart';
-  import 'package:op_flutter/pages/home/home_page.dart';
+import 'package:op_flutter/pages/chatRoom/chart_room.dart';
+import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/requestDemo/request_demo.dart';
 import 'package:op_flutter/pages/routeDemo/route_demo.dart';
 import 'package:op_flutter/pages/routeDemo/route_guard.dart';
-  import '../pages/login/login_page.dart';
+import '../pages/login/login_page.dart';
 
   /// 所有路由路径定义
   class AppRoutes {
@@ -24,6 +25,8 @@ import 'package:op_flutter/pages/routeDemo/route_guard.dart';
 
     // 网络请求模块
     static const networkWhat = '/network/what';
+
+    static const sdkAbility = '/sdk';
   }
 
   /// 所有路由页面配置
@@ -41,5 +44,6 @@ import 'package:op_flutter/pages/routeDemo/route_guard.dart';
       GetPage(name: AppRoutes.routerWhat, page: () => RouteShowcasePage()),
       GetPage(name: AppRoutes.routerGuard, page: () => TodoSummaryPage(), middlewares: [TodoGuard()]),
       GetPage(name: AppRoutes.networkWhat, page: () => RequestDemoPage()),
+      GetPage(name: AppRoutes.sdkAbility, page: () => ChatRoomPage())
     ];
   }

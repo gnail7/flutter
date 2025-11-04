@@ -120,11 +120,13 @@ class HomePage extends StatelessWidget {
 
                   // -------------------- 模块 Tabs --------------------
                   DefaultTabController(
-                    length: 3,
+                    length: 4,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const TabBar(
+                          // isScrollable: true, // ✅ 若标题较多，允许水平滚动
+
                           labelColor: Colors.black,
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: Colors.blue,
@@ -132,6 +134,7 @@ class HomePage extends StatelessWidget {
                             Tab(text: "状态管理"),
                             Tab(text: "路由管理"),
                             Tab(text: "网络请求"),
+                            Tab(text: "SDK调用能力"),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -147,7 +150,7 @@ class HomePage extends StatelessWidget {
                                     _buildCard("用什么状态管理", 0xFFF3E5F5,
                                         Icons.settings, AppRoutes.stateWhat),
                                     _buildCard("如何状态管理", 0xFFE3F2FD,
-                                        Icons.lightbulb, AppRoutes.stateHow),
+                                        Icons.lightbulb, AppRoutes.sdkAbility),
                                   ],
                                 ),
                               ),
@@ -172,6 +175,16 @@ class HomePage extends StatelessWidget {
                                         Icons.cloud, AppRoutes.networkWhat),
                                     _buildCard("如何网络请求", 0xFFB2DFDB,
                                         Icons.send, AppRoutes.networkWhat),
+                                  ],
+                                ),
+                              ),
+                              // Tab 4: SDK调用能力
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    _buildCard("SDK调用", 0xFFE1BEE7,
+                                        Icons.cloud, AppRoutes.sdkAbility),
                                   ],
                                 ),
                               ),
