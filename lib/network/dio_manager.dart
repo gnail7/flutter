@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 class DioManager {
   // 配置基本的请求选项
   static final BaseOptions options = BaseOptions(
-    baseUrl: 'http://192.168.1.2:3000',
+    baseUrl: 'http://192.168.1.7:3000',
     method: 'POST',
     connectTimeout: const Duration(seconds: 5),
     receiveTimeout: const Duration(seconds: 3),
