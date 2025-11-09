@@ -1,146 +1,130 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:op_flutter/constant/app_colors.dart';
-import 'package:op_flutter/pages/login/login_controller.dart';
-import 'package:op_flutter/routes/app_routes.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class OceanpayLoginPage extends StatelessWidget {
+  const OceanpayLoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 获取 LoginController 实例
-    final LoginController controller = Get.put(LoginController(), permanent: true);
-
     return Scaffold(
       body: Stack(
         children: [
+          // 背景图
+          Positioned.fill(
+            child: Image.network(
+              "https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=800&q=60",
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // 半透明蒙层（让文字更清晰）
           Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/login.png',
-                  height: 300,
-                  width: double.infinity,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Welcome Back',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+            color: Colors.black.withOpacity(0.25),
+          ),
+
+          // 内容
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "OceanpayTest",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  margin: const EdgeInsets.symmetric(horizontal: 32),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Form(
+
+                  const SizedBox(height: 24),
+
+                  // 卡片
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 账号输入框
-                        Obx(() => TextFormField(
-                          initialValue: controller.username.value,
-                          decoration: InputDecoration(
-                            labelText: '账号',
-                            prefixIcon: const Icon(Icons.person),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                        const Text(
+                          "Welcome,",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                          onChanged: (value) {
-                            controller.username.value = value;
-                          },
-                        )),
+                        ),
+                        const Text(
+                          "Log in to continue",
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // TID
+                        _buildInput("TID"),
+
                         const SizedBox(height: 16),
 
-                        // 密码输入框
-                        Obx(() => TextFormField(
-                          initialValue: controller.password.value,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: '密码',
-                            prefixIcon: const Icon(Icons.lock),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onChanged: (value) {
-                            controller.password.value = value;
-                          },
-                        )),
-                        const SizedBox(height: 30),
+                        // UID
+                        _buildInput("UID"),
 
-                        // 登录按钮
-                        Obx(() => SizedBox(
+                        const SizedBox(height: 16),
+
+                        // Password
+                        _buildInput("Password", isPassword: true),
+
+                        const SizedBox(height: 20),
+
+                        // Button
+                        SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 48,
                           child: ElevatedButton(
-                            onPressed: controller.isLoading.value
-                                ? null // 如果正在加载，则禁用按钮
-                                : () {
-                              controller.handleLogin();
-                            },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColor.primaryColor,
-                              shadowColor: Colors.transparent,
+                              backgroundColor: Colors.black87,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: controller.isLoading.value
-                                ? const CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                                : const Text(
-                              '登录',
-                              style: TextStyle(fontSize: 18, color: Colors.white),
+                            onPressed: () {},
+                            child: const Text(
+                              "Log in",
+                              style: TextStyle(fontSize: 16),
                             ),
                           ),
-                        )),
+                        ),
                       ],
                     ),
                   ),
-                ),
 
-                // 🔹 使用 Spacer 将底部按钮推到底部
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        print('点击忘记密码');
-                      },
-                      child: const Text('忘记密码？'),
-                    ),
-                    const SizedBox(width: 16),
-                    TextButton(
-                      onPressed: () {
-                        print('点击注册账号');
-                      },
-                      child: const Text('注册账号'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    "Forgot your password? Please contact administrator to retrieve the password.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  //【组件】输入框
+  Widget _buildInput(String label, {bool isPassword = false}) {
+    return TextField(
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        labelText: label,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
   }
