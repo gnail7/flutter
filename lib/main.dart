@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/login/login_controller.dart';
+import 'package:op_flutter/theme/app_theme.dart';
 import 'package:op_flutter/widgets/todolist/todolist.dart';
 import 'routes/app_routes.dart';
 
@@ -20,10 +21,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Login Demo',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white, // 全局白色背景
-        primarySwatch: Colors.blue,            // 可选，全局主题色
-      ),
+      theme: AppTheme.defaultTheme,
       initialRoute: AppRoutes.login, // 默认启动页
       getPages: AppPages.routes, // 路由表
     );
