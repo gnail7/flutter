@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
+import 'package:op_flutter/routes/app_routes.dart';
+import 'package:get/get.dart';
+
 
 class OceanpayLoginPage extends StatefulWidget {
   const OceanpayLoginPage({super.key});
@@ -162,6 +166,7 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
     print("TID: ${tidController.text}");
     print("UID: ${uidController.text}");
     print("PWD: ${pwdController.text}");
+    Get.toNamed(AppRoutes.home);
 
     // TODO：这里调用登录接口
   }
