@@ -1,3 +1,5 @@
+import 'package:op_flutter/models/users/user_model.dart';
+
 class SecureKeyResponse {
   final String secureKey;
 
@@ -11,18 +13,23 @@ class SecureKeyResponse {
 }
 
 class LoginResponse {
-  final String token;
-  final String userName;
+  final String code;
+  final String message;
+  final User data;
 
   LoginResponse({
-    required this.token,
-    required this.userName,
+    required this.code,
+    required this.message,
+    required this.data,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
-      token: json["token"] ?? "",
-      userName: json["userName"] ?? "",
+      code: json["code"] ?? "",
+      message: json["message"] ?? "",
+      data: User.fromJson(json["data"] ?? {}),
     );
   }
 }
+
+

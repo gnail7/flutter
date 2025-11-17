@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:op_flutter/network/login/api.dart';
 import 'package:op_flutter/network/login/login_request.dart';
 import 'package:op_flutter/routes/app_routes.dart';
+import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/utils/rsa_utils.dart';
 
 class LoginController extends GetxController {
@@ -42,6 +43,7 @@ class LoginController extends GetxController {
       return true;
 
     } catch (e) {
+      print('e $e ');
       Get.snackbar("异常", "获取密钥错误: $e");
       return false;
     } finally {
@@ -80,17 +82,21 @@ class LoginController extends GetxController {
     );
 
     print("📩 Login request => ${req.toJson()}");
-
     try {
       isLoading.value = true;
       final response = await LoginApi.login(req);
 
       print("📩 Login response => ${response}");
 
-      /// 登录成功
+      /// 解析后的 User
+      final user = response.data;
+
+      /// ⭐ 保存用户信息到 UserController + 本地持久化
+      UserController.to.setUser(user);
+
       isLoggedIn.value = true;
 
-      /// 跳转到首页
+      /// 跳转首页
       Get.offAllNamed(AppRoutes.home);
 
     } catch (e) {
@@ -98,6 +104,7 @@ class LoginController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+
   }
 
   /// 退出登录

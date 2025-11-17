@@ -2,10 +2,11 @@ class User {
   final String token;
   final int account;
   final int terminal;
+  final String userName;
   final String merName;
   final String batchNo;
   final String orderNo;
-  final String? logoUrl;
+  final String logoUrl;
   final String merAddr;
   final String secureCode;
   final String publicKey;
@@ -29,10 +30,11 @@ class User {
     required this.token,
     required this.account,
     required this.terminal,
+    required this.userName,
     required this.merName,
     required this.batchNo,
     required this.orderNo,
-    this.logoUrl,
+    required this.logoUrl,
     required this.merAddr,
     required this.secureCode,
     required this.publicKey,
@@ -53,72 +55,63 @@ class User {
     required this.externalCall,
   });
 
-  /// fromJson
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      token: json['token'],
-      account: json['account'],
-      terminal: json['terminal'],
-      merName: json['merName'] ?? '',
-      batchNo: json['batchNo'],
-      orderNo: json['orderNo'],
-      logoUrl: json['logoUrl'],
-      merAddr: json['merAddr'],
-      secureCode: json['secureCode'],
-      publicKey: json['publicKey'],
-      currency: json['currency'] ?? '',
-      printReceipt: json['printReceipt'],
-      voidNeedPass: json['voidNeedPass'],
-      voidPass: json['voidPass'],
-      settNeedPass: json['settNeedPass'],
-      settPass: json['settPass'],
-      settingsPass: json['settingsPass'],
-      multiUser: json['multiUser'],
-      supportPayType: json['supportPayType'],
-      clearLoginDays: json['clearLoginDays'],
-      companyInfo: json['companyInfo'] ?? '',
-      companyContact: json['companyContact'] ?? '',
-      role: json['role'],
-      supportCurrencies: json['supportCurrencies'] ?? '',
-      externalCall: json['externalCall'],
+      token: json["token"] ?? "",
+      account: json["account"] ?? 0,
+      terminal: json["terminal"] ?? 0,
+      userName: json["userName"] ?? "",
+      merName: json["merName"] ?? "",
+      batchNo: json["batchNo"] ?? "",
+      orderNo: json["orderNo"] ?? "",
+      logoUrl: json["logoUrl"] ?? "",
+      merAddr: json["merAddr"] ?? "",
+      secureCode: json["secureCode"] ?? "",
+      publicKey: json["publicKey"] ?? "",
+      currency: json["currency"] ?? "",
+      printReceipt: json["printReceipt"] ?? 0,
+      voidNeedPass: json["voidNeedPass"] ?? 0,
+      voidPass: json["voidPass"],
+      settNeedPass: json["settNeedPass"] ?? 0,
+      settPass: json["settPass"],
+      settingsPass: json["settingsPass"],
+      multiUser: json["multiUser"] ?? 0,
+      supportPayType: json["supportPayType"] ?? 0,
+      clearLoginDays: json["clearLoginDays"] ?? 0,
+      companyInfo: json["companyInfo"] ?? "",
+      companyContact: json["companyContact"] ?? "",
+      role: json["role"] ?? 0,
+      supportCurrencies: json["supportCurrencies"] ?? "",
+      externalCall: json["externalCall"] ?? 0,
     );
   }
 
-  /// toJson
-  Map<String, dynamic> toJson() {
-    return {
-      'token': token,
-      'account': account,
-      'terminal': terminal,
-      'merName': merName,
-      'batchNo': batchNo,
-      'orderNo': orderNo,
-      'logoUrl': logoUrl,
-      'merAddr': merAddr,
-      'secureCode': secureCode,
-      'publicKey': publicKey,
-      'currency': currency,
-      'printReceipt': printReceipt,
-      'voidNeedPass': voidNeedPass,
-      'voidPass': voidPass,
-      'settNeedPass': settNeedPass,
-      'settPass': settPass,
-      'settingsPass': settingsPass,
-      'multiUser': multiUser,
-      'supportPayType': supportPayType,
-      'clearLoginDays': clearLoginDays,
-      'companyInfo': companyInfo,
-      'companyContact': companyContact,
-      'role': role,
-      'supportCurrencies': supportCurrencies,
-      'externalCall': externalCall,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "token": token,
+    "account": account,
+    "terminal": terminal,
+    "userName": userName,
+    "merName": merName,
+    "batchNo": batchNo,
+    "orderNo": orderNo,
+    "logoUrl": logoUrl,
+    "merAddr": merAddr,
+    "secureCode": secureCode,
+    "publicKey": publicKey,
+    "currency": currency,
+    "printReceipt": printReceipt,
+    "voidNeedPass": voidNeedPass,
+    "voidPass": voidPass,
+    "settNeedPass": settNeedPass,
+    "settPass": settPass,
+    "settingsPass": settingsPass,
+    "multiUser": multiUser,
+    "supportPayType": supportPayType,
+    "clearLoginDays": clearLoginDays,
+    "companyInfo": companyInfo,
+    "companyContact": companyContact,
+    "role": role,
+    "supportCurrencies": supportCurrencies,
+    "externalCall": externalCall,
+  };
 }
-
-
-enum UserType {
-  single, // 单用户 1
-  multi,  // 多用户 2
-}
-
