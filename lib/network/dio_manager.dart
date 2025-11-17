@@ -1,51 +1,87 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 class DioManager {
-  // 配置基本的请求选项
-  static final BaseOptions options = BaseOptions(
-    // 生产地址： https://epay.oceanpayment.com/
+  static final BaseOptions baseOptions = BaseOptions(
     baseUrl: 'https://192.168.10.39/epay/',
-    method: 'POST',
     connectTimeout: const Duration(seconds: 5),
     receiveTimeout: const Duration(seconds: 3),
     headers: {
       'User-Agent': 'Dio',
     },
   );
-  static Dio dio = Dio(options);
+
+  static final Dio dio = Dio(baseOptions);
+
+  // 初始化拦截器（只配置一次）
+  static void init() {
+    dio.interceptors.clear();
+
+    /// 日志
+    dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestBody: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+
+    /// 统一响应处理
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (Response response, handler) {
+          final data = response.data;
+
+          // ---- 统一处理接口格式 ----
+          if (data is Map<String, dynamic>) {
+            final code = data['code']?.toString() ?? '-1';
+            final message = data['message']?.toString() ?? '未知错误';
+
+            // code = 0 才算成功
+            if (code == '0') {
+              return handler.next(response);
+            } else {
+              // 将错误抛出（controller 端自动进入 catch）
+              return handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  response: response,
+                  message: message,
+                  type: DioExceptionType.badResponse,
+                ),
+              );
+            }
+          }
+
+          // 非 JSON 的情况
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) {
+          print("❌ 接口错误: ${e.message}");
+          return handler.next(e);
+        },
+      ),
+    );
+  }
+
+  /// 统一请求方法
   static Future<T> request<T>(
       String url, {
         dynamic? params,
         String method = "POST",
       }) async {
-    final options = Options(method: method);
-
-    // 添加日志拦截器（可选）
-    dio.interceptors.clear();
-    dio.interceptors.add(LogInterceptor(responseBody: true));
-
     try {
-      Response response;
-      if (method.toUpperCase() == "GET") {
-        response = await dio.request<T>(
-          url,
-          queryParameters: params,
-          options: options,
-        );
-      } else {
-        // POST、PUT 等使用 data
-        response = await dio.request<T>(
-          url,
-          data: params,
-          options: options,
-        );
-      }
+      Response response = await dio.request(
+        url,
+        data: method == "POST" ? params : null,
+        queryParameters: method == "GET" ? params : null,
+        options: Options(method: method),
+      );
 
       return response.data;
     } catch (e) {
-      print('❌ Dio 请求错误: $e');
       return Future.error(e);
     }
   }
-
 }

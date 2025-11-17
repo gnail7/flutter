@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/home/home_button.dart';
 import 'package:op_flutter/pages/home/home_controller.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -17,7 +18,9 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: () {},
+          onPressed: () {
+            Get.toNamed(AppRoutes.system);
+          },
         ),
       ),
 

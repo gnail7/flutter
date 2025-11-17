@@ -1,16 +1,25 @@
-import 'package:op_flutter/models/login/login_request.dart';
 import 'package:op_flutter/network/dio_manager.dart';
+import 'login_request.dart';
+import 'login_response.dart';
 
-/// 获取公共密钥
-Future<dynamic> fetchSecureKeyApi(Map<String, dynamic> request) async{
-  return await DioManager.request('/service/secureKey', params: request);
-}
+class LoginApi {
 
-/// 用户登录接口
-Future<dynamic> loginApi(Map<String, dynamic> request) async {
-  return await DioManager.request(
-    '/service/login',
-    params: request,
-    method: 'POST',
-  );
+  /// 获取 SecureKey
+  static Future<SecureKeyResponse> fetchSecureKey(SecureKeyRequest request) async {
+    final res = await DioManager.request(
+      '/service/secureKey',
+      params: request.toJson(),
+    );
+    return SecureKeyResponse.fromJson(res);
+  }
+
+  /// 登录接口
+  static Future<LoginResponse> login(LoginRequest request) async {
+    final res = await DioManager.request(
+      '/service/login',
+      params: request.toJson(),
+      method: 'POST',
+    );
+    return LoginResponse.fromJson(res);
+  }
 }

@@ -47,7 +47,7 @@ dependencies:
   convert: ^3.1.1           # 编码工具（如 utf8、base64）
   package_info_plus: ^9.0.0
   device_info_plus: ^10.0.0
-
+  encrypt: ^5.0.1
 
 
 

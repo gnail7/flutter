@@ -1,34 +1,27 @@
-/// 获取公钥接口请求参数
-class SecureKeyRequest {
-  final int terminal;
+class ApiResponse<T> {
+  final String code;
+  final String message;
+  final T? data;
+  final String? sign;
 
-  SecureKeyRequest({required this.terminal});
+  ApiResponse({
+    required this.code,
+    required this.message,
+    this.data,
+    this.sign,
+  });
 
-  /// 转换成可直接用于 GET 查询参数的 Map
-  Map<String, dynamic> toQuery() {
-    return {
-      'terminal': terminal,
-    };
-  }
-}
-
-/// 获取公钥接口响应数据
-class SecureKeyResponse {
-  final String secureKey;
-
-  SecureKeyResponse({required this.secureKey});
-
-  /// 从 JSON 创建模型
-  factory SecureKeyResponse.fromJson(Map<String, dynamic> json) {
-    return SecureKeyResponse(
-      secureKey: json['secureKey'] ?? '',
+  factory ApiResponse.fromJson(
+      Map<String, dynamic> json,
+      T Function(dynamic) fromJsonT,
+      ) {
+    return ApiResponse(
+      code: json["code"] ?? "",
+      message: json["message"] ?? "",
+      data: json["data"] == null ? null : fromJsonT(json["data"]),
+      sign: json["sign"],
     );
   }
 
-  /// 转换成 JSON（可选）
-  Map<String, dynamic> toJson() {
-    return {
-      'secureKey': secureKey,
-    };
-  }
+  bool get isSuccess => code == "0";
 }
