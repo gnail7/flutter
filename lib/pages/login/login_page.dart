@@ -1,38 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_getx_widget.dart';
-import 'package:op_flutter/routes/app_routes.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/pages/login/login_controller.dart';
 
+class OceanpayLoginPage extends StatelessWidget {
+  OceanpayLoginPage({super.key});
 
-class OceanpayLoginPage extends StatefulWidget {
-  const OceanpayLoginPage({super.key});
-
-  @override
-  State<OceanpayLoginPage> createState() => _OceanpayLoginPageState();
-}
-
-class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
-  final TextEditingController tidController = TextEditingController();
-  final TextEditingController uidController = TextEditingController();
-  final TextEditingController pwdController = TextEditingController();
-
-  bool isValid = false; // 按钮是否可以点击
-
-  // 校验方法
-  void _validate() {
-    final tid = tidController.text.trim();
-    final uid = uidController.text.trim();
-    final pwd = pwdController.text.trim();
-
-    final tidOk = RegExp(r'^\d{8,9}$').hasMatch(tid);
-    final uidOk = RegExp(r'^[A-Za-z0-9]{3,19}$').hasMatch(uid);
-    final pwdOk = RegExp(r'^[A-Za-z0-9]{6,15}$').hasMatch(pwd);
-
-    setState(() {
-      isValid = tidOk && uidOk && pwdOk;
-    });
-  }
+  final LoginController controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +73,7 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
           // TID（8-9位数字）
           _buildInput(
             "TID",
-            controller: tidController,
+            onChanged: (v) => controller.terminal.value = v,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
 
@@ -108,7 +82,7 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
           // UID（3-19位 字母或数字）
           _buildInput(
             "UID",
-            controller: uidController,
+            onChanged: (v) => controller.username.value = v,
           ),
 
           const SizedBox(height: 16),
@@ -116,26 +90,32 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
           // Password（6-15位）
           _buildInput(
             "Password",
-            controller: pwdController,
             isPassword: true,
+            onChanged: (v) => controller.password.value = v,
           ),
 
           const SizedBox(height: 20),
 
-          // 按钮
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isValid ? Colors.green : Colors.grey,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+          // 登录按钮（会自动根据 controller.isValid + isLoading 更新）
+          Obx(() {
+            final canLogin = controller.isValid && !controller.isLoading.value;
+            return SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: canLogin ? Colors.green : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: canLogin ? controller.handleLogin : null,
+                child: controller.isLoading.value
+                    ? const CircularProgressIndicator(
+                    color: Colors.white, strokeWidth: 2)
+                    : const Text("Log in", style: TextStyle(fontSize: 16)),
               ),
-              onPressed: isValid ? () => _handleLogin() : null,
-              child: const Text("Log in", style: TextStyle(fontSize: 16)),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -144,15 +124,14 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
   // 输入框组件
   Widget _buildInput(
       String label, {
-        required TextEditingController controller,
         bool isPassword = false,
         List<TextInputFormatter>? inputFormatters,
+        required Function(String) onChanged,
       }) {
     return TextField(
-      controller: controller,
       obscureText: isPassword,
       inputFormatters: inputFormatters,
-      onChanged: (v) => _validate(),
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         contentPadding:
@@ -160,14 +139,5 @@ class _OceanpayLoginPageState extends State<OceanpayLoginPage> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
-  }
-
-  void _handleLogin() {
-    print("TID: ${tidController.text}");
-    print("UID: ${uidController.text}");
-    print("PWD: ${pwdController.text}");
-    Get.toNamed(AppRoutes.home);
-
-    // TODO：这里调用登录接口
   }
 }

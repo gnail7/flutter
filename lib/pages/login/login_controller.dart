@@ -107,3 +107,13 @@ class LoginController extends GetxController {
     password.value = '';
   }
 }
+
+
+extension LoginValidator on LoginController {
+  bool get isValid {
+    final tidOk = RegExp(r'^\d{8,9}$').hasMatch(terminal.value);
+    final uidOk = RegExp(r'^[A-Za-z0-9]{3,19}$').hasMatch(username.value);
+    final pwdOk = RegExp(r'^[A-Za-z0-9]{6,15}$').hasMatch(password.value);
+    return tidOk && uidOk && pwdOk;
+  }
+}

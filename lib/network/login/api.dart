@@ -9,6 +9,7 @@ class LoginApi {
     final res = await DioManager.request(
       '/service/secureKey',
       params: request.toJson(),
+      method: 'GET'
     );
     return SecureKeyResponse.fromJson(res);
   }
