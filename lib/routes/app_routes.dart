@@ -1,6 +1,7 @@
   // lib/routes/app_pages.dart
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
+import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
 import '../pages/login/login_page.dart';
 
@@ -9,6 +10,8 @@ import '../pages/login/login_page.dart';
     static const login = '/login';
     static const home = '/home';
     static const system = '/system';
+
+    static const transaction = '/transaction';
   }
 
   /// 所有路由页面配置
@@ -22,6 +25,7 @@ import '../pages/login/login_page.dart';
         name: AppRoutes.home, // 路由路径
         page: () => HomePage(), // 对应页面
       ),
-      GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),)
+      GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),),
+      GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage())
     ];
   }

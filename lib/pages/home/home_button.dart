@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:op_flutter/theme/app_colors.dart';
+import 'package:get/get.dart';
+
+typedef HomeButtonTapCallback = void Function(String name);
 
 class HomeButton extends StatelessWidget {
+  final String name;               // 按钮标识
   final String title;
   final IconData? icon;
-  final VoidCallback onTap;
-  final Color? textColor;         // 可自定义文字颜色
-  final Color? iconColor;         // 可自定义图标颜色
-  final Color? backgroundColor;   // 可自定义背景色
+  final Color? textColor;
+  final Color? iconColor;
+  final Color? backgroundColor;
   final bool showBorder;
 
   const HomeButton({
     super.key,
+    required this.name,
     required this.title,
-    required this.onTap,
     this.icon,
     this.textColor,
     this.iconColor,
@@ -26,7 +29,9 @@ class HomeButton extends StatelessWidget {
     final defaultColor = AppColor.greyColor;
 
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Get.offAllNamed(name);
+      },
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -42,16 +47,16 @@ class HomeButton extends StatelessWidget {
             if (icon != null) ...[
               Icon(
                 icon,
-                size: 40, // 图标大一点
+                size: 40,
                 color: iconColor ?? textColor ?? defaultColor,
               ),
-              const SizedBox(height: 8), // 图标和文字间距稍大
+              const SizedBox(height: 8),
             ],
             Text(
               title,
               style: TextStyle(
-                fontSize: 18, // 文字大一点
-                fontWeight: FontWeight.w600, // 可选加粗，更醒目
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
                 color: textColor ?? defaultColor,
               ),
             ),
@@ -59,6 +64,5 @@ class HomeButton extends StatelessWidget {
         ),
       ),
     );
-
   }
 }

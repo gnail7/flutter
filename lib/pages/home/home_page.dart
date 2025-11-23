@@ -51,7 +51,7 @@ class HomePage extends StatelessWidget {
                         textColor: Colors.white,
                         backgroundColor: AppColor.primaryBgColor,
                         showBorder: false,
-                        onTap: () => print("Scan"),
+                        name: AppRoutes.transaction,
                       ),
                     if (btns.contains(HomeButtonType.qrCode))
                       HomeButton(
@@ -60,7 +60,7 @@ class HomePage extends StatelessWidget {
                         textColor: Colors.white,
                         backgroundColor: AppColor.primaryBgColor,
                         showBorder: false,
-                        onTap: () => print("QR Code"),
+                        name: AppRoutes.transaction,
                       ),
                   ],
                 ),
@@ -78,7 +78,7 @@ class HomePage extends StatelessWidget {
                       title: "Search & Print",
                       icon: getIconForButton(HomeButtonType.transaction),
                       iconColor: AppColor.primaryBgColor,
-                      onTap: () {},
+                      name: AppRoutes.transaction,
                     ),
 
                   if (btns.contains(HomeButtonType.failedTrans))
@@ -86,14 +86,14 @@ class HomePage extends StatelessWidget {
                       title: "Failed Trans",
                       icon: getIconForButton(HomeButtonType.failedTrans),
                       iconColor: AppColor.errorColor,
-                      onTap: () {},
+                      name: AppRoutes.transaction,
                     ),
 
                   if (btns.contains(HomeButtonType.voidPay))
                     HomeButton(
                       title: "Void",
                       icon: getIconForButton(HomeButtonType.voidPay),
-                      onTap: () {},
+                      name: AppRoutes.transaction,
                     ),
 
                   if (btns.contains(HomeButtonType.settlement))
@@ -101,14 +101,14 @@ class HomePage extends StatelessWidget {
                       title: "Settlement",
                       icon: getIconForButton(HomeButtonType.settlement),
                       iconColor: AppColor.warningColor,
-                      onTap: () {},
+                      name: AppRoutes.transaction,
                     ),
 
                   if (btns.contains(HomeButtonType.settings))
                     HomeButton(
                       title: "Set",
                       icon: getIconForButton(HomeButtonType.settings),
-                      onTap: () {},
+                      name: AppRoutes.transaction,
                     ),
                 ],
               ),
