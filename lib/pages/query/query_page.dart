@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 
 class SearchPrintPage extends StatelessWidget {
   const SearchPrintPage({super.key});
@@ -18,7 +20,7 @@ class SearchPrintPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop(); // 返回上一页
+            Get.offAllNamed(AppRoutes.home);
           },
         ),
         actions: [
