@@ -16,7 +16,7 @@ import '../pages/login/login_page.dart';
     static final routes = [
       GetPage(
         name: AppRoutes.login, // 路由路径
-        page: () => OceanpayLoginPage(), // 对应页面
+        page: () => OceanPayLoginPage(), // 对应页面
       ),
       GetPage(
         name: AppRoutes.home, // 路由路径

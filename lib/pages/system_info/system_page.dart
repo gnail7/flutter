@@ -7,7 +7,6 @@ class SystemInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Column(
         children: [
           // ===== 顶部绿色背景 =====
@@ -28,25 +27,47 @@ class SystemInfoPage extends StatelessWidget {
                 bottomRight: Radius.circular(60),
               ),
             ),
-
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                SizedBox(height: 30),
-                Text(
-                  "System Information",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+            child: Stack(
+              children: [
+                // ===== 中间内容 =====
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "System Information",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 45, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 20),
 
-                CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 45, color: Colors.grey),
+                // ===== 右上角退出按钮 =====
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: GestureDetector(
+                    onTap: () {
+                      // 返回首页
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    child: const CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.white70,
+                      child: Icon(Icons.logout, color: Colors.red, size: 20),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -64,28 +85,24 @@ class SystemInfoPage extends StatelessWidget {
                   title: "Settings",
                   onTap: () {},
                 ),
-
                 _menuItem(
                   icon: Icons.lock,
                   color: Colors.red,
                   title: "Reset Password",
                   onTap: () {},
                 ),
-
                 _menuItem(
                   icon: Icons.receipt_long,
                   color: Colors.orange,
                   title: "Operation Log",
                   onTap: () {},
                 ),
-
                 _menuItem(
                   icon: Icons.list,
                   color: Colors.amber,
                   title: "Order Log",
                   onTap: () {},
                 ),
-
                 _menuItem(
                   icon: Icons.info,
                   color: Colors.deepOrange,
@@ -100,7 +117,6 @@ class SystemInfoPage extends StatelessWidget {
     );
   }
 
-  /// ------- 单个菜单 Item -------
   Widget _menuItem({
     required IconData icon,
     required String title,

@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/login/login_controller.dart';
 
-class OceanpayLoginPage extends StatelessWidget {
-  OceanpayLoginPage({super.key});
+class OceanPayLoginPage extends StatelessWidget {
+  OceanPayLoginPage({super.key});
 
   final LoginController controller = Get.put(LoginController());
 
@@ -57,6 +57,19 @@ class OceanpayLoginPage extends StatelessWidget {
   }
 
   Widget _buildCard() {
+    final c = controller;
+
+    // 保证 Controller 的 TextEditingController 与 Rx 双向同步
+    c.terminalController.addListener(() {
+      c.terminal.value = c.terminalController.text;
+    });
+    c.usernameController.addListener(() {
+      c.username.value = c.usernameController.text;
+    });
+    c.passwordController.addListener(() {
+      c.password.value = c.passwordController.text;
+    });
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -73,7 +86,7 @@ class OceanpayLoginPage extends StatelessWidget {
           // TID（8-9位数字）
           _buildInput(
             "TID",
-            onChanged: (v) => controller.terminal.value = v,
+            controller: c.terminalController,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
 
@@ -82,7 +95,7 @@ class OceanpayLoginPage extends StatelessWidget {
           // UID（3-19位 字母或数字）
           _buildInput(
             "UID",
-            onChanged: (v) => controller.username.value = v,
+            controller: c.usernameController,
           ),
 
           const SizedBox(height: 16),
@@ -91,14 +104,14 @@ class OceanpayLoginPage extends StatelessWidget {
           _buildInput(
             "Password",
             isPassword: true,
-            onChanged: (v) => controller.password.value = v,
+            controller: c.passwordController,
           ),
 
           const SizedBox(height: 20),
 
-          // 登录按钮（会自动根据 controller.isValid + isLoading 更新）
+          // 登录按钮（根据 isValid + isLoading 更新）
           Obx(() {
-            final canLogin = controller.isValid && !controller.isLoading.value;
+            final canLogin = c.isValid && !c.isLoading.value;
             return SizedBox(
               width: double.infinity,
               height: 48,
@@ -108,8 +121,8 @@ class OceanpayLoginPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                onPressed: canLogin ? controller.handleLogin : null,
-                child: controller.isLoading.value
+                onPressed: canLogin ? c.handleLogin : null,
+                child: c.isLoading.value
                     ? const CircularProgressIndicator(
                     color: Colors.white, strokeWidth: 2)
                     : const Text("Log in", style: TextStyle(fontSize: 16)),
@@ -121,23 +134,22 @@ class OceanpayLoginPage extends StatelessWidget {
     );
   }
 
-  // 输入框组件
   Widget _buildInput(
       String label, {
         bool isPassword = false,
         List<TextInputFormatter>? inputFormatters,
-        required Function(String) onChanged,
+        TextEditingController? controller,
       }) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       inputFormatters: inputFormatters,
-      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
+
 }

@@ -4,9 +4,9 @@ import 'package:dio/dio.dart';
 
 class DioManager {
   static final BaseOptions baseOptions = BaseOptions(
-    baseUrl: 'http://192.168.1.7:3000',
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 3),
+    baseUrl: 'http://192.168.1.4:3000',
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
     headers: {
       'User-Agent': 'Dio',
     },
@@ -32,7 +32,7 @@ class DioManager {
       InterceptorsWrapper(
         onResponse: (Response response, handler) {
           final data = response.data;
-
+          print('data $data');
           // ---- 统一处理接口格式 ----
           if (data is Map<String, dynamic>) {
             final code = data['code']?.toString() ?? '-1';

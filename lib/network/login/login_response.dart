@@ -1,13 +1,13 @@
 import 'package:op_flutter/models/users/user_model.dart';
 
 class SecureKeyResponse {
-  final String secureKey;
+  final String data;
 
-  SecureKeyResponse({required this.secureKey});
+  SecureKeyResponse({required this.data});
 
   factory SecureKeyResponse.fromJson(Map<String, dynamic> json) {
     return SecureKeyResponse(
-      secureKey: json["secureKey"] ?? "",
+      data: json["data"] ?? "",
     );
   }
 }
