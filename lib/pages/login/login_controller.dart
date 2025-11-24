@@ -62,6 +62,7 @@ class LoginController extends GetxController {
 
       print("⭐ SecureKey result => ${response.data}");
       secureKey = response.data;
+
       return true;
     } catch (e) {
       Get.snackbar("异常", "获取密钥错误: $e");
@@ -114,6 +115,7 @@ class LoginController extends GetxController {
 
       // 额外保存 username
       userMap['userName'] = username.value;
+      userMap['secureKey'] = secureKey;
 
       // 存储到 SharedPreferences
       await prefs.setString('user_data', jsonEncode(userMap));

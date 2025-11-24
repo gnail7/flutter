@@ -25,6 +25,7 @@ class User {
   final int role;
   final String supportCurrencies;
   final int externalCall;
+  final String secureKey;
 
   User({
     required this.token,
@@ -41,6 +42,7 @@ class User {
     required this.currency,
     required this.printReceipt,
     required this.voidNeedPass,
+    required this.secureKey,
     this.voidPass,
     required this.settNeedPass,
     this.settPass,
@@ -83,6 +85,7 @@ class User {
       role: json["role"] ?? 0,
       supportCurrencies: json["supportCurrencies"] ?? "",
       externalCall: json["externalCall"] ?? 0,
+      secureKey: json["secureKey"] ?? 0
     );
   }
 
