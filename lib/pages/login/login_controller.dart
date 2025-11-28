@@ -63,7 +63,7 @@ class LoginController extends GetxController {
       );
 
       secureKey = response.data;
-
+      print('secureKey $secureKey');
       return true;
     } catch (e) {
       Get.snackbar("异常", "获取密钥错误: $e");
@@ -79,79 +79,50 @@ class LoginController extends GetxController {
       Get.snackbar("提示", "请输入用户名和密码");
       return;
     }
-    if (version.value.isEmpty || deviceId.value.isEmpty) {
-      await initEnvInfo();
-    }
 
-
-    // 2. 获取公钥
+    // 1. 获取公钥
     final ok = await getSecureKey();
     if (!ok || secureKey.isEmpty) return;
 
-    // 对密码做 SHA256
+    // 2. SHA256 处理密码
     final passwordSha = sha256.convert(utf8.encode(password.value)).toString();
 
-    // 准备参数
+    // 3. 构造参数
     final params = {
-      "terminal": terminal.value,
-      "version": version.value,
       "userName": username.value,
       "password": passwordSha,
       "deviceId": deviceId.value,
     };
 
-    // 按 A-Z 排序
-    final sortedKeys = params.keys.toList()..sort();
-    final buffer = StringBuffer();
-    for (var key in sortedKeys) {
-      buffer.write("$key=${params[key]}&");
-    }
+    // 4. 生成 secure
+    final secure = LoginRequest.generateSecure(params, secureKey, secureKey);
 
-    // 拼接商户密钥
-    final merchantKey = secureKey; // 必须从配置或接口获取
-    buffer.write("merchantKey=$merchantKey");
-
-    // SHA256 签名
-    final secure = sha256.convert(utf8.encode(buffer.toString())).toString();
-
-    // 构造请求
+    // 5. 构造请求
     final req = LoginRequest(
       terminal: int.parse(terminal.value),
       version: version.value,
-      key: secureKey, // 从接口获取
-      deviceId: deviceId.value,
-      userName: username.value,
-      password: password.value, // 或 token: autoToken.value
-      publicKey: secureKey, // RSA 公钥
-      merchantKey: secureKey, // 商户密钥
+      key: secureKey,
+      secure: secure,
     );
 
-
+    // 6. 调用接口
     try {
       isLoading.value = true;
       final response = await LoginApi.login(req);
 
-
       // 保存用户信息到 UserController
       UserController.to.setUser(response.data);
 
-      // 保存用户信息到 SharedPreferences
+      // 保存到 SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final userMap = response.data.toJson();
-
-      // 额外保存 username
       userMap['userName'] = username.value;
       userMap['secureKey'] = secureKey;
-
-      // 存储到 SharedPreferences
       await prefs.setString('user_data', jsonEncode(userMap));
 
       isLoggedIn.value = true;
-
       Get.offAllNamed(AppRoutes.home);
-
     } catch (e) {
-      print("登录失败: $e");
       Get.snackbar("异常", "登录失败: $e");
     } finally {
       isLoading.value = false;
