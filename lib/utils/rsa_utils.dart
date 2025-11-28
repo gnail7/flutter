@@ -1,20 +1,17 @@
-import 'package:encrypt/encrypt.dart';
-import 'package:pointycastle/asymmetric/api.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
-class RsaUtils {
-  static String encrypt(String text, String publicKeyStr) {
-    // 如果没有 PEM 头，则自动加
-    if (!publicKeyStr.contains('BEGIN PUBLIC KEY')) {
-      publicKeyStr = """
------BEGIN PUBLIC KEY-----
-$publicKeyStr
------END PUBLIC KEY-----
-""";
-    }
+/// 公共加密工具
+class EncryptUtils {
+  /// SHA256加密
+  static String sha256Encrypt(String data) {
+    return sha256.convert(utf8.encode(data)).toString();
+  }
 
-    final publicKey = RSAKeyParser().parse(publicKeyStr) as RSAPublicKey;
-    final encrypter = Encrypter(RSA(publicKey: publicKey));
-
-    return encrypter.encrypt(text).base64;
+  /// RSA加密（这里假设你有 RSA 工具类）
+  static String rsaEncrypt(String data, String publicKey) {
+    // 调用你的 RSA 加密方法
+    // return RsaUtils.encrypt(data, publicKey);
+    return data; // placeholder
   }
 }

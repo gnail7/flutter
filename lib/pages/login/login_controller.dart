@@ -41,12 +41,14 @@ class LoginController extends GetxController {
 
 
   Future<void> initEnvInfo() async {
-    final pkg = await PackageInfo.fromPlatform();
-    final info = DeviceInfoPlugin();
-    final android = await info.androidInfo;
-
-    version.value = pkg.version;
-    deviceId.value = android.id;
+    // final pkg = await PackageInfo.fromPlatform();
+    // final info = DeviceInfoPlugin();
+    // final android = await info.androidInfo;
+    //
+    // version.value = pkg.version;
+    // deviceId.value = android.id;
+    version.value = '1';
+    deviceId.value = '0820631392';
   }
 
   Future<bool> getSecureKey() async {
@@ -60,7 +62,6 @@ class LoginController extends GetxController {
         SecureKeyRequest(terminal: int.parse(terminal.value)),
       );
 
-      print("⭐ SecureKey result => ${response.data}");
       secureKey = response.data;
 
       return true;
@@ -78,26 +79,51 @@ class LoginController extends GetxController {
       Get.snackbar("提示", "请输入用户名和密码");
       return;
     }
-
     if (version.value.isEmpty || deviceId.value.isEmpty) {
       await initEnvInfo();
     }
 
+
+    // 2. 获取公钥
     final ok = await getSecureKey();
-    if (!ok) return;
+    if (!ok || secureKey.isEmpty) return;
 
+    // 对密码做 SHA256
     final passwordSha = sha256.convert(utf8.encode(password.value)).toString();
-    final securePlain = "${username.value}$passwordSha${terminal.value}";
-    final rsaSecure = RsaUtils.encrypt(securePlain, secureKey);
 
+    // 准备参数
+    final params = {
+      "terminal": terminal.value,
+      "version": version.value,
+      "userName": username.value,
+      "password": passwordSha,
+      "deviceId": deviceId.value,
+    };
+
+    // 按 A-Z 排序
+    final sortedKeys = params.keys.toList()..sort();
+    final buffer = StringBuffer();
+    for (var key in sortedKeys) {
+      buffer.write("$key=${params[key]}&");
+    }
+
+    // 拼接商户密钥
+    final merchantKey = secureKey; // 必须从配置或接口获取
+    buffer.write("merchantKey=$merchantKey");
+
+    // SHA256 签名
+    final secure = sha256.convert(utf8.encode(buffer.toString())).toString();
+
+    // 构造请求
     final req = LoginRequest(
       terminal: int.parse(terminal.value),
       version: version.value,
-      key: secureKey,
-      secure: rsaSecure,
-      userName: username.value,
-      password: passwordSha,
+      key: secureKey, // 从接口获取
       deviceId: deviceId.value,
+      userName: username.value,
+      password: password.value, // 或 token: autoToken.value
+      publicKey: secureKey, // RSA 公钥
+      merchantKey: secureKey, // 商户密钥
     );
 
 

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 
 class DioManager {
   static final BaseOptions baseOptions = BaseOptions(
-    baseUrl: 'http://192.168.1.4:3000',
+    baseUrl: 'https://epay39.oceanpayment.com:4443/epay',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {
