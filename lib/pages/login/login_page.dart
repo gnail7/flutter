@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/login/login_controller.dart';
+import 'package:op_flutter/widgets/loading/loading_overlay.dart';
 
 class OceanPayLoginPage extends StatelessWidget {
   OceanPayLoginPage({super.key});
@@ -10,51 +11,57 @@ class OceanPayLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 背景图
-          Positioned.fill(
-            child: Image.network(
-              "https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=800&q=60",
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 蒙层
-          Container(color: Colors.black.withOpacity(0.25)),
-
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "OceanpayTest",
-                    style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  const SizedBox(height: 24),
-
-                  _buildCard(),
-
-                  const SizedBox(height: 24),
-                  const Text(
-                    "Forgot your password? Please contact administrator to retrieve the password.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ],
+    return Obx(() {
+      return LoadingOverlay(
+        isLoading: controller.isLoading.value,
+        child: Scaffold(
+          body: Stack(
+            children: [
+              // 背景图
+              Positioned.fill(
+                child: Image.network(
+                  "https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=800&q=60",
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
+
+              // 蒙层
+              Container(color: Colors.black.withOpacity(0.25)),
+
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "OceanpayTest",
+                        style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildCard(),
+
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Forgot your password? Please contact administrator to retrieve the password.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
+
 
   Widget _buildCard() {
     final c = controller;
