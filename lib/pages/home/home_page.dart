@@ -101,7 +101,7 @@ class HomePage extends StatelessWidget {
                       title: "Settlement",
                       icon: getIconForButton(HomeButtonType.settlement),
                       iconColor: AppColor.warningColor,
-                      name: AppRoutes.transaction,
+                      name: AppRoutes.settlement,
                     ),
 
                   if (btns.contains(HomeButtonType.settings))

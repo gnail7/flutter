@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
+import 'package:op_flutter/pages/settlement/settlement_page.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
 import '../pages/login/login_page.dart';
@@ -13,6 +14,8 @@ import '../pages/login/login_page.dart';
     static const system = '/system';
 
     static const transaction = '/transaction';
+
+    static const settlement = '/settlement';
 
     static const passwordVerify = '/password-verify';
   }
@@ -30,6 +33,7 @@ import '../pages/login/login_page.dart';
       ),
       GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),),
       GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage()),
-      GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage())
+      GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage()),
+      GetPage(name: AppRoutes.settlement, page: () => SettlementPage())
     ];
   }

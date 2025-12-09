@@ -69,6 +69,8 @@ class LoginController extends GetxController {
   }
 
   Future<bool> getSecureKey() async {
+    Get.offAllNamed(AppRoutes.home);
+
     if (terminal.value.isEmpty) {
       Get.snackbar("提示", "请输入终端号");
       return false;
@@ -92,6 +94,7 @@ class LoginController extends GetxController {
   /// 登录
 
   Future<void> handleLogin() async {
+
   if (username.value.isEmpty || password.value.isEmpty) {
       Get.snackbar("提示", "请输入用户名和密码");
       return;

@@ -33,6 +33,7 @@ class HomeButton extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final result = await AuthGuard.check(name);
+        print('result $result');
         Get.toNamed(name);
 
         if (result == AuthCheckResult.allow) {
@@ -43,7 +44,7 @@ class HomeButton extends StatelessWidget {
             arguments: {"title": "Settlement"},
           );
         } else {
-          Get.toNamed(AppRoutes.login);
+          // Get.toNamed(name);
         }
       },
       child: Container(

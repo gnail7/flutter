@@ -53,7 +53,7 @@ Future<bool?> showConfirmDialog({
                   ),
                   const SizedBox(width: 8),
                   TextButton(
-                    onPressed: () => Get.back(result: true),
+                    onPressed: () => {},
                     child: const Text(
                       "OK",
                       style: TextStyle(fontSize: 16, color: Colors.green),
