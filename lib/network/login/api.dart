@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:op_flutter/network/dio_manager.dart';
 import 'login_request.dart';
 import 'login_response.dart';
@@ -16,9 +17,10 @@ class LoginApi {
 
   /// 登录接口
   static Future<LoginResponse> login(LoginRequest request) async {
+
     final res = await DioManager.request(
       '/service/login',
-      params: request.toJson(),
+      params: jsonEncode(request.toJson()),
       method: 'POST',
     );
     return LoginResponse.fromJson(res);
