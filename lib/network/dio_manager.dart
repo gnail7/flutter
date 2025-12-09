@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 class DioManager {
   static final BaseOptions baseOptions = BaseOptions(
-    baseUrl: 'https://epay39.oceanpayment.com:4443/epay',
+    baseUrl: 'https://192.168.10.39:4443/epay',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {
@@ -16,6 +18,15 @@ class DioManager {
 
   // 初始化拦截器（只配置一次）
   static void init() {
+
+    /// 设置忽略证书（开发环境）
+    (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return true; // 始终信任证书
+      };
+      return client;
+    };
+
     dio.interceptors.clear();
 
     /// 日志

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
+import 'package:op_flutter/widgets/password_verify.dart';
 import '../pages/login/login_page.dart';
 
   /// 所有路由路径定义
@@ -12,6 +13,8 @@ import '../pages/login/login_page.dart';
     static const system = '/system';
 
     static const transaction = '/transaction';
+
+    static const passwordVerify = '/password-verify';
   }
 
   /// 所有路由页面配置
@@ -26,6 +29,7 @@ import '../pages/login/login_page.dart';
         page: () => HomePage(), // 对应页面
       ),
       GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),),
-      GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage())
+      GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage()),
+      GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage())
     ];
   }

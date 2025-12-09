@@ -34,7 +34,6 @@ dependencies:
   get: ^4.6.6
   dio: ^5.7.0
   shared_preferences: ^2.2.0  # 本地存储
-#  record: ^5.0.4
   just_audio: ^0.9.39
   image_picker: ^1.1.2
   file_picker: ^8.1.2
@@ -43,12 +42,15 @@ dependencies:
   flutter_map: ^7.0.0
   latlong2: ^0.9.1
   crypto: ^3.0.3            # 用于 SHA256 加密
-  pointycastle: ^3.9.1      # 用于 RSA 公钥加密
+  pointycastle: ^3.7.3
+  asn1lib: ^1.5.0
   convert: ^3.1.1           # 编码工具（如 utf8、base64）
   package_info_plus: ^9.0.0
   device_info_plus: ^10.0.0
   encrypt: ^5.0.1
-
+  basic_utils: ^5.7.0
+  flutter_plugin_android_lifecycle: 2.0.31
+  flutter_svg: ^2.1.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -78,6 +80,7 @@ flutter:
 
   assets:
     - images/login.png
+    - images/password.svg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

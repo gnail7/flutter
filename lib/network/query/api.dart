@@ -10,7 +10,7 @@ class QueryApi {
 
     final res = await DioManager.request(
       '/service/transaction/summary',
-      params: request.toJson(),   // ✔ 要用 toJson 发送
+      params: request.toJson(),
       method: 'POST',
     );
 

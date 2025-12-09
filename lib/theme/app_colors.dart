@@ -10,6 +10,7 @@ class AppColor {
   static final Color greyColor = Color(0xFF8A919F);
   static final Color lightGrey = Color(0xFFF5F5F5);
   static final Color darkGrey = Color(0xFF4A4A4A);
+  static final Color bgGrey =  Color(0xFFF4F4F4);
 
   // 警告/提示颜色
   static final Color successColor = Color(0xFF52C41A); // 成功/通过

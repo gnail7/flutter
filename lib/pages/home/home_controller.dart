@@ -13,6 +13,7 @@ class HomeController extends GetxController {
   /// 获取当前应该显示的按钮
   List<HomeButtonType> get buttons {
     switch (mode.value) {
+      /// 主扫
       case ScanMode.active:
         return [
           HomeButtonType.scan,
@@ -22,6 +23,7 @@ class HomeController extends GetxController {
           HomeButtonType.voidPay,
           HomeButtonType.settlement,
         ];
+      /// 被扫
       case ScanMode.passive:
         return [
           HomeButtonType.qrCode,
@@ -30,6 +32,7 @@ class HomeController extends GetxController {
           HomeButtonType.failedTrans,
           HomeButtonType.settlement,
         ];
+      /// 主扫&被扫
       case ScanMode.both:
         return [
           HomeButtonType.scan,

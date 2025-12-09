@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:op_flutter/routes/app_routes.dart';
+import 'package:get/get.dart';
 
 class SystemInfoPage extends StatelessWidget {
   const SystemInfoPage({super.key});
@@ -52,15 +54,28 @@ class SystemInfoPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
+                // ===== 左上角返回按钮 =====
+                Positioned(
+                  top: 40,
+                  left: 20,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop(); // 返回上一页
+                    },
+                    child: const CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.white70,
+                      child: Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                    ),
+                  ),
+                ),
                 // ===== 右上角退出按钮 =====
                 Positioned(
                   top: 40,
                   right: 20,
                   child: GestureDetector(
                     onTap: () {
-                      // 返回首页
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      Get.toNamed(AppRoutes.login);
                     },
                     child: const CircleAvatar(
                       radius: 18,

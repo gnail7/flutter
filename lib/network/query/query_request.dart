@@ -1,5 +1,4 @@
 class QueryParams {
-  // ===== 必传 M & 参与签名 M =====
 
   /// 终端号（必传，参与签名）
   final int terminal;

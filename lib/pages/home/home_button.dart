@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/utils/common.dart';
 
 typedef HomeButtonTapCallback = void Function(String name);
 
@@ -29,8 +31,20 @@ class HomeButton extends StatelessWidget {
     final defaultColor = AppColor.greyColor;
 
     return InkWell(
-      onTap: () {
-        Get.offAllNamed(name);
+      onTap: () async {
+        final result = await AuthGuard.check(name);
+        Get.toNamed(name);
+
+        if (result == AuthCheckResult.allow) {
+          Get.toNamed(name);
+        } else if (result == AuthCheckResult.needVerify) {
+          Get.toNamed(
+            AppRoutes.passwordVerify,
+            arguments: {"title": "Settlement"},
+          );
+        } else {
+          Get.toNamed(AppRoutes.login);
+        }
       },
       child: Container(
         alignment: Alignment.center,
