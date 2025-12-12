@@ -1,13 +1,14 @@
-import 'package:op_flutter/routes/app_routes.dart';
+import 'dart:collection';
+
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/widgets/modal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:asn1lib/asn1lib.dart';
 import 'package:pointycastle/export.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 Future<void> saveRecentLoginDate() async {
   final prefs = await SharedPreferences.getInstance();
@@ -15,21 +16,23 @@ Future<void> saveRecentLoginDate() async {
   await prefs.setString('recent_login_date', DateTime.now().toIso8601String());
 }
 
-
 class AuthGuard {
   static Future<AuthCheckResult> check(String routeName) async {
     final prefs = await SharedPreferences.getInstance();
     final dateStr = prefs.getString('recent_login_date');
     final lastDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
 
-    final userController = Get.find<UserController>();
-    final cleanOverDay = userController.user.value?.clearLoginDays;
 
+    final userController = Get.find<UserController>();
+    // 特殊路由无需校验
     if (routeName == '/settlement') {
       return AuthCheckResult.allow;
     }
 
-    if (cleanOverDay == null) {
+    // 如果上次登录时间超过 7 天
+    final now = DateTime.now();
+    final bool over7Days = now.difference(lastDate!).inDays >= 7;
+    if (over7Days) {
       final ok = await showConfirmDialog(
         title: "Settlement",
         message:
@@ -38,9 +41,9 @@ class AuthGuard {
 
       if (ok == true) {
         return AuthCheckResult.needVerify;
+      } else {
+        return AuthCheckResult.block;
       }
-
-      return AuthCheckResult.block;
     }
 
     return AuthCheckResult.allow;
@@ -53,53 +56,50 @@ enum AuthCheckResult {
   needVerify,
 }
 
+String encryptInChunks(RSAPublicKey publicKey, String plainText) {
+  final cipher = PKCS1Encoding(RSAEngine())
+    ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
+  final data = Uint8List.fromList(utf8.encode(plainText));
+  final int chunkSize = cipher.inputBlockSize;
 
-String rsaNewEncrypt(Uint8List publicKeyBytes, String plainText) {
-  try {
-    // ① 使用 asn1lib 解析 DER 编码 X.509 公钥
-    final asn1Parser = ASN1Parser(publicKeyBytes);
-    final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+  final builder = BytesBuilder();
+  int offset = 0;
 
-    // SubjectPublicKeyInfo = sequence[0]=AlgorithmId, sequence[1]=BitString(publicKey)
-    final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
-
-    // ② 继续解析公钥部分（RSAPublicKey）
-    final publicKeyAsn = ASN1Parser(publicKeyBitString.contentBytes()!);
-    final publicKeySeq = publicKeyAsn.nextObject() as ASN1Sequence;
-
-    final modulus = publicKeySeq.elements[0] as ASN1Integer;
-    final exponent = publicKeySeq.elements[1] as ASN1Integer;
-
-    final rsaPublicKey = RSAPublicKey(
-      modulus.valueAsBigInteger,
-      exponent.valueAsBigInteger,
-    );
-
-    // ③ 创建加密器（RSA + PKCS1）
-    final cipher = PKCS1Encoding(RSAEngine());
-    cipher.init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
-
-    // ④ 分段加密
-    final plainBytes = utf8.encode(plainText);
-    final keySize = (rsaPublicKey.modulus!.bitLength + 7) ~/ 8;
-    final blockSize = keySize - 11;
-
-    final output = <int>[];
-
-    for (int offset = 0; offset < plainBytes.length; offset += blockSize) {
-      final end = (offset + blockSize < plainBytes.length)
-          ? offset + blockSize
-          : plainBytes.length;
-
-      final block = plainBytes.sublist(offset, end);
-
-      final encrypted = cipher.process(Uint8List.fromList(block));
-      output.addAll(encrypted);
-    }
-
-    return base64Encode(output);
-  } catch (e) {
-    throw Exception("RSA 加密失败: $e");
+  while (offset < data.length) {
+    final end = (offset + chunkSize < data.length) ? offset + chunkSize : data.length;
+    final chunk = data.sublist(offset, end);
+    final encryptedChunk = cipher.process(chunk);
+    builder.add(encryptedChunk);
+    offset = end;
   }
+
+  final encryptedBytes = builder.toBytes();
+  return base64Encode(encryptedBytes);
 }
+
+
+String sha256Hex(String input) {
+  final bytes = utf8.encode(input);
+  final digest = sha256.convert(bytes);
+  return digest.toString().toUpperCase(); // 变成你要的大写 HEX
+}
+
+/// 通用 SHA256 签名方法
+/// [fields]：需要参与签名的字段列表，顺序会影响签名结果
+String generateSha256Sign(List<dynamic> fields) {
+  // 强制把所有字段转成 String，再拼接
+  final concatenated = fields.map((e) => e.toString()).join();
+
+  return sha256Hex(concatenated);
+}
+
+String createSign(Map<String, String> params, String secureKey) {
+  final sorted = SplayTreeMap<String, String>.from(params);
+  final buffer = StringBuffer();
+  sorted.forEach((k, v) => buffer.write(v));
+  buffer.write(secureKey);
+  return sha256.convert(utf8.encode(buffer.toString())).toString().toUpperCase();
+}
+
+

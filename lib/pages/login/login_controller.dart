@@ -1,23 +1,20 @@
 import 'dart:convert';
-import 'package:basic_utils/basic_utils.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:op_flutter/models/users/user_model.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/utils/app_utils.dart';
 import 'package:op_flutter/utils/common.dart';
-import 'package:op_flutter/utils/rsa_utils.dart';
+import 'package:op_flutter/widgets/custom_loading_dialog.dart';
+import 'package:op_flutter/widgets/toast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pointycastle/asn1.dart';
-import 'package:pointycastle/asymmetric/oaep.dart';
-import 'package:pointycastle/asymmetric/pkcs1.dart';
-import 'package:pointycastle/asymmetric/rsa.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
-import 'package:crypto/crypto.dart';
 import 'package:op_flutter/network/login/api.dart';
 import 'package:op_flutter/network/login/login_request.dart';
 import 'package:op_flutter/store/user_controller.dart';
-import 'dart:typed_data';
 
 
 class LoginController extends GetxController {
@@ -32,18 +29,6 @@ class LoginController extends GetxController {
   var isLoggedIn = false.obs;
 
   String secureKey = "";
-  /// 生成带密钥的密码哈希
-  String generatePasswordHash(String rawPassword, String secureKey) {
-    // 1. 拼接原始密码和商户密钥 (secureKey)
-    // 假设拼接规则是： 明文密码 + secureKey
-    final combinedString = rawPassword + secureKey;
-
-    // 2. SHA256
-    final passwordSha = sha256.convert(utf8.encode(combinedString)).toString();
-
-    return passwordSha;
-  }
-
   /// 输入框控制器
   final terminalController = TextEditingController();
   final usernameController = TextEditingController();
@@ -60,69 +45,65 @@ class LoginController extends GetxController {
 
   Future<void> initEnvInfo() async {
     final pkg = await PackageInfo.fromPlatform();
-    // final info = DeviceInfoPlugin();
-    // final android = await info.androidInfo;
-    //
+    final info = DeviceInfoPlugin();
+    final android = await info.androidInfo;
     version.value = pkg.version;
     // deviceId.value = android.id;
     deviceId.value = '0820631392';
   }
 
   Future<bool> getSecureKey() async {
-    Get.offAllNamed(AppRoutes.home);
-
     if (terminal.value.isEmpty) {
       Get.snackbar("提示", "请输入终端号");
       return false;
     }
-    try {
-      isLoading.value = true;
-      final response = await LoginApi.fetchSecureKey(
-        SecureKeyRequest(terminal: int.parse(terminal.value)),
-      );
 
-      secureKey = response.data;
-      return true;
-    } catch (e) {
-      Get.snackbar("异常", "获取密钥错误: $e");
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
+    return withLoadingDialog(() async {
+      try {
+        final response = await LoginApi.fetchSecureKey(
+          SecureKeyRequest(terminal: int.parse(terminal.value)),
+        );
+        secureKey = response.data;
+        return true;
+      } catch (e) {
+        Get.snackbar("异常", "获取密钥错误: $e");
+        return false;
+      }
+    });
   }
 
+
   /// 登录
-
-  Future<void> handleLogin() async {
-
-  if (username.value.isEmpty || password.value.isEmpty) {
+  Future<void> handleLogin({bool useToken = false}) async {
+    if (username.value.isEmpty || password.value.isEmpty && !useToken) {
       Get.snackbar("提示", "请输入用户名和密码");
       return;
     }
+
     // 获取 RSA 公钥
     final ok = await getSecureKey();
     if (!ok || secureKey.isEmpty) return;
-    saveRecentLoginDate();
-
-
-
-    // 密码 SHA256
-    final passwordSha = sha256.convert(utf8.encode(password.value)).toString();
-
-    // 构造登录 JSON
+    final prefs = await SharedPreferences.getInstance();
+    dynamic localUser = prefs.getString('user');
+    if (localUser != null) {
+      localUser = User.fromJson(jsonDecode(localUser));
+    }
+    // 构造登录字符串
     final loginReq = {
       "deviceId": deviceId.value,
-      "password": passwordSha,
       "userName": username.value,
+      if (useToken)
+        "token": localUser.token
+      else
+        "password": sha256Hex(password.value),
     };
+
+
     final loginJsonStr = jsonEncode(loginReq);
+    final pubkey = derToPem(secureKey);
+    final publicKey = parsePemPublicKey(pubkey);
+    final encryptedBase64 = rsaEncryptNoPadding(loginJsonStr, publicKey);
 
-    // Base64 解码公钥
-    final keyBytes = base64.decode(secureKey);
-
-    // RSA 分段加密（CryptoUtil）
-    final encryptedBase64 = rsaNewEncrypt(keyBytes, loginJsonStr);
-    // 构造请求参数
     final req = LoginRequest(
       terminal: terminal.value,
       version: version.value,
@@ -130,29 +111,26 @@ class LoginController extends GetxController {
       secure: encryptedBase64,
     );
 
-
-    try {
-      isLoading.value = true;
-
+    await withLoadingDialog(() async {
       final response = await LoginApi.login(req);
-
-      UserController.to.setUser(response.data);
-
-      final prefs = await SharedPreferences.getInstance();
-      final data = response.data.toJson();
-      data['userName'] = username.value;
-      data['secureKey'] = secureKey;
+      final data = response.data;
+      if (data != null) {
+        data.userName = username.value;
+        data.secureKey = secureKey;
+      }
+      UserController.to.setUser(response.data!);
 
       prefs.setString('user_data', jsonEncode(data));
-      saveRecentLoginDate();
+      await saveRecentLoginDate();
       isLoggedIn.value = true;
-      Get.offAllNamed(AppRoutes.home);
-    } catch (e) {
-      Get.snackbar("异常", "登录失败: $e");
-    } finally {
-      isLoading.value = false;
-    }
+      showCenterToast('登录成功');
+
+      Future.delayed(const Duration(seconds: 2), () {
+        Get.offAllNamed(AppRoutes.home);
+      });
+    });
   }
+
 
 
   /// 读取本地用户信息
@@ -183,20 +161,20 @@ class LoginController extends GetxController {
       // 判断 multiUser
       final multiUser = localMap['multiUser'] ?? 1;
       if (multiUser == 0) {
-        // 可以自动登录，需要把 JSON 转成 User 对象
-        final user = User.fromJson(localMap);
-        UserController.to.setUser(user);
-        isLoggedIn.value = true;
 
-        // 跳转首页
-        Get.offAllNamed(AppRoutes.home);
+
+        // 延迟调用 handleLogin 进行一次登录（可自动获取 secureKey 并加密）
+        withLoadingDialog(() async {
+          await handleLogin(useToken: true);
+          isLoggedIn.value = true;
+        });
+
       } else {
-        // 需要手动登录，但自动填充 TID & UID
+        // 多用户，需要手动登录，但自动填充 TID & UID
         isLoggedIn.value = false;
       }
     }
   }
-
 
 
   /// 登出
@@ -217,3 +195,5 @@ extension LoginValidator on LoginController {
     return tidOk && uidOk && pwdOk;
   }
 }
+
+

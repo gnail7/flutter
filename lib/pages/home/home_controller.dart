@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:op_flutter/store/user_controller.dart';
 
 enum ScanMode {
   active,     // 主扫
@@ -8,7 +9,32 @@ enum ScanMode {
 
 class HomeController extends GetxController {
   // 后台配置结果
-  final mode = ScanMode.active.obs;
+  final userController = Get.find<UserController>();
+
+  final mode = ScanMode.passive.obs;
+
+  void _updateModeFromUser() {
+    final supportPayType = userController.user.value?.supportPayType ?? 0;
+    switch (supportPayType) {
+      case 0:
+        mode.value = ScanMode.active;
+        break;
+      case 1:
+        mode.value = ScanMode.passive;
+        break;
+      case 2:
+        mode.value = ScanMode.both;
+        break;
+      default:
+        mode.value = ScanMode.active;
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _updateModeFromUser();
+  }
 
   /// 获取当前应该显示的按钮
   List<HomeButtonType> get buttons {
@@ -17,7 +43,6 @@ class HomeController extends GetxController {
       case ScanMode.active:
         return [
           HomeButtonType.scan,
-          HomeButtonType.settings,
           HomeButtonType.transaction,
           HomeButtonType.failedTrans,
           HomeButtonType.voidPay,
@@ -27,7 +52,6 @@ class HomeController extends GetxController {
       case ScanMode.passive:
         return [
           HomeButtonType.qrCode,
-          HomeButtonType.settings,
           HomeButtonType.transaction,
           HomeButtonType.failedTrans,
           HomeButtonType.settlement,
@@ -37,7 +61,6 @@ class HomeController extends GetxController {
         return [
           HomeButtonType.scan,
           HomeButtonType.qrCode,
-          HomeButtonType.settings,
           HomeButtonType.transaction,
           HomeButtonType.failedTrans,
           HomeButtonType.voidPay,
@@ -51,7 +74,6 @@ class HomeController extends GetxController {
 enum HomeButtonType {
   scan,
   qrCode,
-  settings,
   transaction,
   failedTrans,
   voidPay,

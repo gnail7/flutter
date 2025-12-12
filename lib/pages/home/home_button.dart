@@ -7,24 +7,22 @@ import 'package:op_flutter/utils/common.dart';
 typedef HomeButtonTapCallback = void Function(String name);
 
 class HomeButton extends StatelessWidget {
-  final String name;               // 按钮标识
-  final String title;
-  final IconData? icon;
-  final Color? textColor;
-  final Color? iconColor;
-  final Color? backgroundColor;
-  final bool showBorder;
 
   const HomeButton({
-    super.key,
-    required this.name,
-    required this.title,
+    required this.name, required this.title, super.key,
     this.icon,
     this.textColor,
     this.iconColor,
     this.backgroundColor,
     this.showBorder = true,
   });
+  final String name;
+  final String title;
+  final IconData? icon;
+  final Color? textColor;
+  final Color? iconColor;
+  final Color? backgroundColor;
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +31,16 @@ class HomeButton extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final result = await AuthGuard.check(name);
-        print('result $result');
-        Get.toNamed(name);
-
+        /// 无需settlement
         if (result == AuthCheckResult.allow) {
           Get.toNamed(name);
-        } else if (result == AuthCheckResult.needVerify) {
-          Get.toNamed(
-            AppRoutes.passwordVerify,
-            arguments: {"title": "Settlement"},
-          );
+        }
+        /// 是否超过七天没有settlement了
+        else if (result == AuthCheckResult.needVerify) {
+          Get.toNamed(AppRoutes.passwordVerify, arguments: {
+            "title": "Settlement",
+            "redirectRoute": AppRoutes.settlement
+          });
         } else {
           // Get.toNamed(name);
         }

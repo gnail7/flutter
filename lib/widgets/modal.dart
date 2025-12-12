@@ -17,8 +17,7 @@ Future<bool?> showConfirmDialog({
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// 图标 + 标题
+              // 图标 + 标题
               Row(
                 children: [
                   Icon(Icons.info, color: Colors.orange, size: 26),
@@ -32,28 +31,24 @@ Future<bool?> showConfirmDialog({
                   )
                 ],
               ),
-
               const SizedBox(height: 16),
-
-              /// 内容文本
+              // 内容文本
               Text(
                 message,
                 style: const TextStyle(fontSize: 15, height: 1.4),
               ),
-
               const SizedBox(height: 25),
-
-              /// 按钮行
+              // 按钮行
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => Get.back(result: false),
+                    onPressed: () => Get.back(result: false), // 返回 false
                     child: const Text("Cancel", style: TextStyle(fontSize: 16)),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
-                    onPressed: () => {},
+                    onPressed: () => Get.back(result: true), // 返回 true
                     child: const Text(
                       "OK",
                       style: TextStyle(fontSize: 16, color: Colors.green),

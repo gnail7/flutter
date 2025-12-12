@@ -1,28 +1,49 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+# analysis_options.yaml
+include: package:lints/recommended.yaml
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # -----------------------------
+    # 风格规范相关
+    # -----------------------------
+    always_put_control_body_on_new_line: true  # 控制语句块总换行
+    always_put_required_named_parameters_first: true  # 必须将 required 命名参数放在前面
+    annotate_overrides: true                     # 重写方法必须添加 @override
+    avoid_print: true                            # 禁止使用 print（用 Logger 替代）
+    prefer_const_constructors: true             # 尽量使用 const 构造函数
+    prefer_const_literals_to_create_immutables: true  # 常量字面量使用 const
+    prefer_final_fields: true                    # 类字段优先使用 final
+    prefer_final_in_for_each: true               # for-each 循环变量优先 final
+    prefer_typing_uninitialized_variables: true  # 未初始化变量建议写类型
+    sort_child_properties_last: true            # child 属性放在最后
+    sort_constructors_first: true               # 构造函数放在前面
+    lines_longer_than_80_chars: false           # 可按团队风格调整行长度
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # -----------------------------
+    # 命名规范
+    # -----------------------------
+    camel_case_extensions: true                  # 扩展名采用驼峰命名
+    constant_identifier_names: true             # 常量命名全大写+下划线
+    library_prefixes: true                       # 库前缀命名规范
+    non_constant_identifier_names: false        # 可以按团队风格关闭非常量命名限制
+
+    # -----------------------------
+    # 错误防范
+    # -----------------------------
+    avoid_dynamic_calls: true                    # 避免 dynamic 类型调用
+    avoid_init_to_null: true                     # 避免初始化为 null
+    avoid_unused_constructor_parameters: true   # 避免未使用的构造函数参数
+    avoid_unused_parameters: true               # 避免未使用参数
+    cancel_subscriptions: true                   # 取消订阅防止内存泄漏
+    prefer_is_empty: true                        # 优先使用 isEmpty 判断空集合
+    prefer_is_not_empty: true                    # 优先使用 isNotEmpty 判断非空集合
+
+# -----------------------------
+# Dart 分析器配置
+# -----------------------------
+analyzer:
+  strong-mode:
+    implicit-casts: false   # 禁止隐式类型转换
+    implicit-dynamic: false # 禁止隐式 dynamic
+  errors:
+    todo: ignore            # 忽略 TODO 提示，可改为 warning 或 error

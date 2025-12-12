@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/theme/app_colors.dart';
+import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 
 class PasswordVerifyPage extends StatefulWidget {
   const PasswordVerifyPage({super.key});
@@ -13,6 +14,7 @@ class PasswordVerifyPage extends StatefulWidget {
 
 class _PasswordVerifyPageState extends State<PasswordVerifyPage> {
   late final String title;
+  late final String? redirectRoute; // 新增跳转路径参数
   final TextEditingController _pwdController = TextEditingController();
   bool loading = false;
   bool isButtonEnabled = false;
@@ -22,21 +24,32 @@ class _PasswordVerifyPageState extends State<PasswordVerifyPage> {
     super.initState();
     final args = Get.arguments ?? {};
     title = args["title"] ?? "Verification";
+    redirectRoute = args["redirectRoute"];
   }
+
+
 
   Future<void> handleOK() async {
     if (!isButtonEnabled) return;
 
     final pwd = _pwdController.text.trim();
-
+    // 显示 Loading
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (_) => const CustomLoadingDialog(),
+    );
     setState(() => loading = true);
 
     await Future.delayed(const Duration(seconds: 1));
 
     setState(() => loading = false);
-
     if (pwd == "123456") {
-      Get.offNamed("/clearMachine");
+      if (redirectRoute != null && redirectRoute!.isNotEmpty) {
+        Get.offNamed(redirectRoute!);
+      } else {
+        Get.offNamed("/clearMachine");
+      }
     } else {
       Get.snackbar(
         "Error",

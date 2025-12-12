@@ -1,5 +1,19 @@
 class QueryParams {
 
+  QueryParams({
+    required this.terminal,
+    required this.batchNo,
+    required this.transType,
+    required this.token,
+    this.paymentMethod,
+    this.orderNo,
+    this.amount,
+    this.needTransDetails,
+    this.pageSize,
+    this.startIndex,
+    this.sign,
+  });
+
   /// 终端号（必传，参与签名）
   final int terminal;
 
@@ -25,21 +39,6 @@ class QueryParams {
   // ===== 签名，只传不参与签名 =====
   final String? sign;
 
-  QueryParams({
-    required this.terminal,
-    required this.batchNo,
-    required this.transType,
-    required this.token,
-    this.paymentMethod,
-    this.orderNo,
-    this.amount,
-    this.needTransDetails,
-    this.pageSize,
-    this.startIndex,
-    this.sign,
-  });
-
-  /// ★ 用于生成签名（不包含 sign）
   Map<String, dynamic> toSignMap() {
     final map = {
       "terminal": terminal,
@@ -59,7 +58,6 @@ class QueryParams {
     return map;
   }
 
-  /// ★ 用于发给后端的最终 JSON
   Map<String, dynamic> toJson() {
     final map = {
       "terminal": terminal,
@@ -72,7 +70,7 @@ class QueryParams {
       "pageSize": pageSize,
       "startIndex": startIndex,
       "token": token,
-      "sign": sign, // 最终发送时必须带上签名
+      "sign": sign,
     };
 
     return map;

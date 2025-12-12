@@ -1,27 +1,35 @@
 class ApiResponse<T> {
-  final String code;
-  final String message;
-  final T? data;
-  final String? sign;
 
   ApiResponse({
     required this.code,
     required this.message,
-    this.data,
-    this.sign,
+    required this.data,
   });
 
   factory ApiResponse.fromJson(
       Map<String, dynamic> json,
-      T Function(dynamic) fromJsonT,
+      T Function(dynamic data) fromJsonT,
       ) {
-    return ApiResponse(
-      code: json["code"] ?? "",
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : fromJsonT(json["data"]),
-      sign: json["sign"],
+    return ApiResponse<T>(
+      code: json['code']?.toString() ?? '',
+      message: json['message'] ?? '',
+      data: fromJsonT(json['data']),
     );
   }
+  final String code;
+  final String message;
+  final T data;
+}
 
-  bool get isSuccess => code == "0";
+
+class SecureKeyResponse {
+
+  SecureKeyResponse({required this.data});
+
+  factory SecureKeyResponse.fromJson(Map<String, dynamic> json) {
+    return SecureKeyResponse(
+      data: json['data'] ?? '',
+    );
+  }
+  final String data;
 }

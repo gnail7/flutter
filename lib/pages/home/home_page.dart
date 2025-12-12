@@ -3,13 +3,15 @@ import 'package:get/get.dart';
 import 'package:op_flutter/pages/home/home_button.dart';
 import 'package:op_flutter/pages/home/home_controller.dart';
 import 'package:op_flutter/routes/app_routes.dart';
+import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 
 
 class HomePage extends StatelessWidget {
-  final HomeController controller = Get.put(HomeController());
 
   HomePage({super.key});
+  final HomeController controller = Get.put(HomeController());
+  final UserController userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +32,8 @@ class HomePage extends StatelessWidget {
           },
         ),
         backgroundColor: AppColor.primaryBgColor,
-      ),
 
+      ),
       body: Obx(() {
         final btns = controller.buttons;
 
@@ -40,29 +42,34 @@ class HomePage extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Container(
-                color: AppColor.primaryBgColor, // 这里设置背景色
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // 水平居中
-                  children: [
-                    if (btns.contains(HomeButtonType.scan))
-                      HomeButton(
-                        title: "Scan",
-                        icon: getIconForButton(HomeButtonType.scan),
-                        textColor: Colors.white,
-                        backgroundColor: AppColor.primaryBgColor,
-                        showBorder: false,
-                        name: AppRoutes.transaction,
-                      ),
-                    if (btns.contains(HomeButtonType.qrCode))
-                      HomeButton(
-                        title: "QR Code",
-                        icon: getIconForButton(HomeButtonType.qrCode),
-                        textColor: Colors.white,
-                        backgroundColor: AppColor.primaryBgColor,
-                        showBorder: false,
-                        name: AppRoutes.transaction,
-                      ),
-                  ],
+                color: AppColor.primaryBgColor,
+                child: Center(
+                  child: Wrap(
+                    spacing: 32,        // 水平按钮间距
+                    runSpacing: 16,     // 不会换行，但必须给
+                    alignment: WrapAlignment.center,
+                    children: [
+                      if (btns.contains(HomeButtonType.scan))
+                        HomeButton(
+                          title: "Scan",
+                          icon: getIconForButton(HomeButtonType.scan),
+                          textColor: Colors.white,
+                          backgroundColor: AppColor.primaryBgColor,
+                          showBorder: false,
+                          name: AppRoutes.scanQrCode,
+                        ),
+
+                      if (btns.contains(HomeButtonType.qrCode))
+                        HomeButton(
+                          title: "QR Code",
+                          icon: getIconForButton(HomeButtonType.qrCode),
+                          textColor: Colors.white,
+                          backgroundColor: AppColor.primaryBgColor,
+                          showBorder: false,
+                          name: AppRoutes.transaction,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -86,14 +93,14 @@ class HomePage extends StatelessWidget {
                       title: "Failed Trans",
                       icon: getIconForButton(HomeButtonType.failedTrans),
                       iconColor: AppColor.errorColor,
-                      name: AppRoutes.transaction,
+                      name: AppRoutes.failTrans,
                     ),
 
                   if (btns.contains(HomeButtonType.voidPay))
                     HomeButton(
                       title: "Void",
                       icon: getIconForButton(HomeButtonType.voidPay),
-                      name: AppRoutes.transaction,
+                      name: AppRoutes.voidPage,
                     ),
 
                   if (btns.contains(HomeButtonType.settlement))
@@ -103,16 +110,10 @@ class HomePage extends StatelessWidget {
                       iconColor: AppColor.warningColor,
                       name: AppRoutes.settlement,
                     ),
-
-                  if (btns.contains(HomeButtonType.settings))
-                    HomeButton(
-                      title: "Set",
-                      icon: getIconForButton(HomeButtonType.settings),
-                      name: AppRoutes.transaction,
-                    ),
                 ],
               ),
             ),
+
           ],
         );
       }),
@@ -128,8 +129,6 @@ IconData? getIconForButton(HomeButtonType type) {
       return Icons.qr_code_scanner;
     case HomeButtonType.qrCode:
       return Icons.qr_code;
-    case HomeButtonType.settings:
-      return Icons.settings;
     case HomeButtonType.transaction:
       return Icons.payment;
     case HomeButtonType.failedTrans:

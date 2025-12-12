@@ -2,7 +2,7 @@ class User {
   final String token;
   final int account;
   final int terminal;
-  final String userName;
+  String userName;
   final String merName;
   final String batchNo;
   final String orderNo;
@@ -25,7 +25,7 @@ class User {
   final int role;
   final String supportCurrencies;
   final int externalCall;
-  final String secureKey;
+  String secureKey;
 
   User({
     required this.token,
@@ -85,7 +85,7 @@ class User {
       role: json["role"] ?? 0,
       supportCurrencies: json["supportCurrencies"] ?? "",
       externalCall: json["externalCall"] ?? 0,
-      secureKey: json["secureKey"] ?? 0
+      secureKey: json["secureKey"]?.toString() ?? "",
     );
   }
 

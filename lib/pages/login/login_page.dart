@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/login/login_controller.dart';
+import 'package:op_flutter/store/user_controller.dart';
 
 class OceanPayLoginPage extends StatelessWidget {
   OceanPayLoginPage({super.key});
@@ -21,11 +22,8 @@ class OceanPayLoginPage extends StatelessWidget {
             ),
           ),
 
-          // 蒙层
-          Container(color: Colors.black.withOpacity(0.25)),
-
           Center(
-            child: SingleChildScrollView(
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

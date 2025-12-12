@@ -1,8 +1,4 @@
 class ApiResponse<T> {
-  final String code;
-  final String message;
-  final T? data;
-  final String? sign;
 
   ApiResponse({
     required this.code,
@@ -11,7 +7,6 @@ class ApiResponse<T> {
     this.sign,
   });
 
-  // 泛型解析
   factory ApiResponse.fromJson(
       Map<String, dynamic> json, T Function(dynamic) fromJsonT) {
     return ApiResponse(
@@ -21,6 +16,10 @@ class ApiResponse<T> {
       sign: json['sign'],
     );
   }
+  final String code;
+  final String message;
+  final T? data;
+  final String? sign;
 
   bool get isSuccess => code == '0';
 }

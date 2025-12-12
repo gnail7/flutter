@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/network/dio_manager.dart';
-import 'package:op_flutter/pages/login/login_controller.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_theme.dart';
 import 'routes/app_routes.dart';
@@ -11,7 +10,6 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   DioManager.init();
   Get.put(UserController(), permanent: true);
-  Get.put(LoginController(), permanent: true);
   runApp(const MyApp());
 }
 
@@ -22,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Login Demo',
+      title: 'pos demo',
       theme: AppTheme.defaultTheme,
       initialRoute: AppRoutes.login, // 默认启动页
       getPages: AppPages.routes, // 路由表

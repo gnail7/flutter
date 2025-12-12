@@ -1,43 +1,75 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:basic_utils/basic_utils.dart';
+import 'package:encrypt/encrypt.dart';
+import 'package:pointycastle/api.dart';
 import 'package:asn1lib/asn1lib.dart';
-import 'package:pointycastle/export.dart' as pc;
+import 'package:pointycastle/asymmetric/rsa.dart';
 
-String rsaEncryptJavaCompatible(Uint8List publicKeyBytes, String plainText) {
-  try {
-    // 解析 X509 公钥
-    final parser = ASN1Parser(publicKeyBytes);
-    final topLevelSeq = parser.nextObject() as ASN1Sequence;
-    final publicKeyBitString = topLevelSeq.elements![1] as ASN1BitString;
-    final publicKeyAsn1 =
-    ASN1Parser(publicKeyBitString.contentBytes()!).nextObject() as ASN1Sequence;
+RSAPublicKey loadPublicKeyByStr(String publicKeyStr) {
+  // 1. base64 decode
+  final publicKeyBytes = base64Decode(publicKeyStr);
 
-    final modulus = (publicKeyAsn1.elements![0] as ASN1Integer).valueAsBigInteger;
-    final exponent = (publicKeyAsn1.elements![1] as ASN1Integer).valueAsBigInteger;
-    final rsaPublicKey = pc.RSAPublicKey(modulus, exponent);
-    final cipher = pc.PKCS1Encoding(pc.RSAEngine());
-    cipher.init(true, pc.PublicKeyParameter<pc.RSAPublicKey>(rsaPublicKey));
+  // 2. 解析 X.509 公钥结构（ASN.1）
+  final asn1Parser = ASN1Parser(publicKeyBytes);
+  final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
 
-    final data = utf8.encode(plainText);
+  // 3. 取出 BIT STRING（真正的公钥结构）
+  final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
-    ///  能分多少块
-    final keySize = (rsaPublicKey.modulus!.bitLength + 7) ~/ 8;
-    final blockSize = keySize - 11; // PKCS1 填充块大小
-    final outputSize = keySize;
+  final publicKeyAsn = ASN1Parser(publicKeyBitString.contentBytes()!);
+  final publicKeySeq = publicKeyAsn.nextObject() as ASN1Sequence;
 
-    final raw = Uint8List(outputSize * ((data.length + blockSize - 1) ~/ blockSize));
-    int rawOffset = 0;
+  // 4. 解析 modulus(N) 和 exponent(E)
+  final modulus = publicKeySeq.elements[0] as ASN1Integer;
+  final exponent = publicKeySeq.elements[1] as ASN1Integer;
 
-    for (int i = 0; i < data.length; i += blockSize) {
-      final end = (i + blockSize < data.length) ? i + blockSize : data.length;
-      final chunk = Uint8List.fromList(data.sublist(i, end));
-      final encryptedChunk = cipher.process(chunk);
-      raw.setRange(rawOffset, rawOffset + encryptedChunk.length, encryptedChunk);
-      rawOffset += encryptedChunk.length;
-    }
-
-    return base64Encode(raw);
-  } catch (e) {
-    throw Exception("RSA 加密失败: $e");
-  }
+  // 5. 返回 Dart 的 RSAPublicKey
+  return RSAPublicKey(modulus.valueAsBigInteger, exponent.valueAsBigInteger);
 }
+
+String rsaEncryptNoPadding(String plainText, RSAPublicKey publicKey) {
+  final engine = RSAEngine() // 无填充
+    ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
+
+  final data = utf8.encode(plainText);
+  final keySize = (publicKey.modulus!.bitLength + 7) >> 3; // bytes
+
+  if (data.length > keySize) {
+    throw Exception('Plaintext too long for RSA key without padding');
+  }
+
+  // 如果明文长度 < keySize，需要自己补零到 keySize
+  final padded = Uint8List(keySize);
+  padded.setRange(keySize - data.length, keySize, data);
+
+  final encrypted = engine.process(padded);
+
+  return base64Encode(encrypted);
+}
+
+
+String derToPem(String derBase64) {
+  // 添加 PEM 头尾
+  final pem = StringBuffer();
+  pem.writeln('-----BEGIN PUBLIC KEY-----');
+
+  // 每 64 个字符换行
+  for (int i = 0; i < derBase64.length; i += 64) {
+    int end = (i + 64 < derBase64.length) ? i + 64 : derBase64.length;
+    pem.writeln(derBase64.substring(i, end));
+  }
+
+  pem.writeln('-----END PUBLIC KEY-----');
+  return pem.toString();
+}
+
+
+RSAPublicKey parsePemPublicKey(String pem) {
+  final parser = RSAKeyParser();
+
+  return parser.parse(pem) as RSAPublicKey;
+}
+
+
+
