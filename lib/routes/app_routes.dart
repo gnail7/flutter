@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:op_flutter/pages/about_us/about_us.dart';
 import 'package:op_flutter/pages/failed_trans/fail_trans_page.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
+import 'package:op_flutter/pages/login/login_binding.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
@@ -38,6 +39,7 @@ import '../pages/login/login_page.dart';
       GetPage(
         name: AppRoutes.login, // 路由路径
         page: () => OceanPayLoginPage(), // 对应页面
+        binding: LoginBinding()
       ),
       GetPage(
         name: AppRoutes.home, // 路由路径

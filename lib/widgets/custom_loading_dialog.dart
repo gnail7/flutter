@@ -1,34 +1,54 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:get/get.dart';
 
-Future<T> withLoadingDialog<T>(Future<T> Function() callback) async {
-  // 显示 Loading
-  showDialog(
-    context: Get.context!,
-    barrierDismissible: false,
-    builder: (_) => const CustomLoadingDialog(),
-  );
+/// 可包裹任意 child 的 Loading Widget
+class LoadingWrapper extends StatelessWidget {
 
-  try {
-    return await callback();
-  } finally {
-    if (Navigator.of(Get.context!).canPop()) {
-      Navigator.of(Get.context!).pop();
-    }
+  const LoadingWrapper({
+    required this.child, super.key,
+    this.isLoading = false,
+    this.text = 'Loading...',
+    this.color,
+  });
+  final Widget child;
+  final bool isLoading;
+  final String text;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child, // 原页面内容
+        if (isLoading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black38,
+              alignment: Alignment.center,
+              child: _CustomLoading(
+                text: text,
+                color: color,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
 
-class CustomLoadingDialog extends StatefulWidget {
-  const CustomLoadingDialog({super.key});
+/// ⭐ 内部加载动画
+class _CustomLoading extends StatefulWidget {
+
+  const _CustomLoading({super.key, this.text = 'Loading...', this.color});
+  final String text;
+  final Color? color;
 
   @override
-  State<CustomLoadingDialog> createState() => _CustomLoadingDialogState();
+  State<_CustomLoading> createState() => _CustomLoadingState();
 }
 
-class _CustomLoadingDialogState extends State<CustomLoadingDialog>
+class _CustomLoadingState extends State<_CustomLoading>
     with TickerProviderStateMixin {
-
   late AnimationController _rotateController;
   late AnimationController _breathController;
   late Animation<double> _breathScale;
@@ -37,13 +57,11 @@ class _CustomLoadingDialogState extends State<CustomLoadingDialog>
   void initState() {
     super.initState();
 
-    // 外圈旋转控制器
     _rotateController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat();
 
-    // 呼吸（内圈与外圈都用）
     _breathController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -63,75 +81,67 @@ class _CustomLoadingDialogState extends State<CustomLoadingDialog>
 
   @override
   Widget build(BuildContext context) {
-    const Color ringColor = Color(0xFF52C41A);
+    final ringColor = widget.color ?? const Color(0xFF52C41A);
 
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // ========= 外圈：旋转 + 呼吸(大小+粗细) =========
-                AnimatedBuilder(
-                  animation: _breathController,
-                  builder: (_, child) {
-                    return Transform.scale(
-                      scale: _breathScale.value,
-                      child: RotationTransition(
-                        turns: _rotateController,
-                        child: CustomPaint(
-                          painter: TwoArcRingPainter(
-                            color: ringColor,
-                            strokeWidth: 3 * _breathScale.value,
-                          ),
-                          size: const Size(55, 55),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _breathController,
+                builder: (_, child) {
+                  return Transform.scale(
+                    scale: _breathScale.value,
+                    child: RotationTransition(
+                      turns: _rotateController,
+                      child: CustomPaint(
+                        painter: TwoArcRingPainter(
+                          color: ringColor,
+                          strokeWidth: 3 * _breathScale.value,
                         ),
+                        size: const Size(55, 55),
                       ),
-                    );
-                  },
-                ),
-
-                // ========= 内圈绿色呼吸点 =========
-                ScaleTransition(
-                  scale: _breathScale,
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    decoration: const BoxDecoration(
-                      color: ringColor, // ★ 使用指定颜色
-                      shape: BoxShape.circle,
                     ),
+                  );
+                },
+              ),
+              ScaleTransition(
+                scale: _breathScale,
+                child: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: ringColor,
+                    shape: BoxShape.circle,
                   ),
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 18),
-
-            const Text(
-              "Loading...",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                fontWeight: FontWeight.w600,
               ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            widget.text,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-
-/// ⭐ 两个 1/3 圆周弧段
+/// 两个 1/3 圆周弧段
 class TwoArcRingPainter extends CustomPainter {
 
   TwoArcRingPainter({
@@ -150,26 +160,10 @@ class TwoArcRingPainter extends CustomPainter {
       ..color = color;
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    const sweep = math.pi / 3;
 
-    const sweep = math.pi / 3; // 120° = 1/3 圆弧段
-
-    // 左弧段（210° 起点）
-    canvas.drawArc(
-      rect,
-      math.pi * 7 / 6,
-      sweep,
-      false,
-      paint,
-    );
-
-    // 右弧段（30° 起点）
-    canvas.drawArc(
-      rect,
-      math.pi / 6,
-      sweep,
-      false,
-      paint,
-    );
+    canvas.drawArc(rect, math.pi * 7 / 6, sweep, false, paint);
+    canvas.drawArc(rect, math.pi / 6, sweep, false, paint);
   }
 
   @override

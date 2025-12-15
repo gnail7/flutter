@@ -104,11 +104,6 @@ class _SettlementPageState extends State<SettlementPage> {
   Future<void> handleConfirm() async {
     setState(() => loading = true);
 
-    // 弹出自定义 Loading Dialog
-    Get.dialog(
-      const CustomLoadingDialog(),
-      barrierDismissible: false,
-    );
 
     // 模拟请求或处理逻辑
     await Future.delayed(const Duration(seconds: 2));

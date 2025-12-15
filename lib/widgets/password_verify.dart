@@ -33,12 +33,12 @@ class _PasswordVerifyPageState extends State<PasswordVerifyPage> {
     if (!isButtonEnabled) return;
 
     final pwd = _pwdController.text.trim();
-    // 显示 Loading
-    showDialog(
-      context: Get.context!,
-      barrierDismissible: false,
-      builder: (_) => const CustomLoadingDialog(),
-    );
+    // // 显示 Loading
+    // showDialog(
+    //   context: Get.context!,
+    //   barrierDismissible: false,
+    //   builder: (_) => const CustomLoadingDialog(),
+    // );
     setState(() => loading = true);
 
     await Future.delayed(const Duration(seconds: 1));

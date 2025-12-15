@@ -1,5 +1,7 @@
 
 
+import 'dart:ffi';
+
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:op_flutter/models/users/user_model.dart';
@@ -39,32 +41,31 @@ class UserController extends GetxController {
   }
 
   /// 登出
-  Future<void> logout() async {
+  Future<bool> logout() async {
     try {
       if (user.value != null) {
-        withLoadingDialog(() async {
-          // 清理本地缓存，保留 tid/uid
-          final prefs = await SharedPreferences.getInstance();
-          String? tid = prefs.getString('terminal');
-          String? uid = prefs.getString('uid');
+        // 清理本地缓存，保留 tid/uid
+        final prefs = await SharedPreferences.getInstance();
+        String? tid = prefs.getString('terminal');
+        String? uid = prefs.getString('uid');
 
-          await prefs.clear();
+        await prefs.clear();
 
-          if (tid != null) {
-            prefs.setString('terminal', tid);
-          }
-          if (uid != null) {
-            prefs.setString('uid', uid);
-          }
+        if (tid != null) {
+          prefs.setString('terminal', tid);
+        }
+        if (uid != null) {
+          prefs.setString('uid', uid);
+        }
 
-          user.value = null;
-          Get.offAllNamed(AppRoutes.home);
-        });
+        user.value = null;
+        Get.offAllNamed(AppRoutes.home);
       }
     } catch (e) {
       // 可以记录错误或提示用户
       final logger = Logger();
       logger.e(e);
     }
+    return true;
   }
 }
