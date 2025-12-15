@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/constant/common.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/paginated_page_list.dart';
@@ -28,23 +29,15 @@ class SearchPrintPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: () async {
-              final result = await showModalBottomSheet(
+              await showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
-                builder: (_) => FilterSheet(
-                  selectedPayment: controller.paymentFilter.value,
-                  selectedType: controller.typeFilter.value,
-                ),
+                builder: (_) => FilterSheet(controller: controller),
               );
-
-              if (result != null) {
-                controller.paymentFilter.value = result['payment'];
-                controller.typeFilter.value = result['type'];
-                controller.refreshList();
-              }
             },
             color: Colors.white,
           ),
+
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: controller.refreshList,
@@ -96,7 +89,6 @@ class PaymentItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 映射 transType -> 文本 & 背景色
     String typeText;
     Color bgColor;
 
@@ -165,25 +157,10 @@ class PaymentItemWidget extends StatelessWidget {
 }
 
 /// 筛选框
-class FilterSheet extends StatefulWidget {
-  const FilterSheet({required this.selectedPayment, required this.selectedType, super.key});
-  final String selectedPayment;
-  final String selectedType;
+class FilterSheet extends StatelessWidget {
+  FilterSheet({required this.controller, super.key});
 
-  @override
-  State<FilterSheet> createState() => _FilterSheetState();
-}
-
-class _FilterSheetState extends State<FilterSheet> {
-  late String selectedPayment;
-  late String selectedType;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedPayment = widget.selectedPayment;
-    selectedType = widget.selectedType;
-  }
+  final QueryPageController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -197,33 +174,38 @@ class _FilterSheetState extends State<FilterSheet> {
           right: 16,
           top: 16,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 顶部拉手
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
-              // 第一行：支付方式单选
-              const Text('支付方式', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
+            const Text('支付方式', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Obx(() {
+              final paymentOptions = {
+                'Wechat': OceanConstants.methodWechatPay,
+                'Alipay': OceanConstants.methodAlipay,
+              };
+              return Wrap(
                 spacing: 12,
-                children: ['Wechat', 'Alipay'].map((method) {
-                  final isSelected = selectedPayment == method;
+                children: paymentOptions.entries.map((entry) {
+                  final display = entry.key; // 显示文本
+                  final value = entry.value; // 实际值
+                  final isSelected = controller.paymentFilter.value == value;
+
                   return ChoiceChip(
                     label: Text(
-                      method,
+                      display,
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                       ),
@@ -231,22 +213,22 @@ class _FilterSheetState extends State<FilterSheet> {
                     selected: isSelected,
                     selectedColor: Colors.green,
                     onSelected: (selected) {
-                      setState(() {
-                        selectedPayment = selected ? method : '';
-                      });
+                      controller.paymentFilter.value = selected ? value : '';
+                      controller.refreshList();
                     },
                   );
                 }).toList(),
-              ),
-              const SizedBox(height: 16),
+              );
+            }),
+            const SizedBox(height: 16),
 
-              // 第二行：交易类型单选
-              const Text('交易类型', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
+            const Text('交易类型', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Obx(() {
+              return Wrap(
                 spacing: 12,
                 children: ['Sale', 'Void', 'Failed'].map((type) {
-                  final isSelected = selectedType == type;
+                  final isSelected = controller.typeFilter.value == type;
                   return ChoiceChip(
                     label: Text(
                       type,
@@ -257,30 +239,26 @@ class _FilterSheetState extends State<FilterSheet> {
                     selected: isSelected,
                     selectedColor: Colors.green,
                     onSelected: (selected) {
-                      setState(() {
-                        selectedType = selected ? type : '';
-                      });
+                      controller.refreshList();
+                      controller.typeFilter.value = selected ? type : '0';
                     },
                   );
                 }).toList(),
-              ),
-              const SizedBox(height: 16),
+              );
+            }),
+            const SizedBox(height: 16),
 
-              // 第三行：搜索按钮
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      'payment': selectedPayment,
-                      'type': selectedType,
-                    });
-                  },
-                  child: const Text('Search by Bill No. or Amount'),
-                ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  controller.refreshList();
+                },
+                child: const Text('Search by Bill No. or Amount'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -11,9 +11,7 @@ class BatchSummary {
       saleStats: Stats.fromString(json['saleStats']),
       voidStats: Stats.fromString(json['voidStats']),
       failedStats: Stats.fromString(json['failedStats']),
-      transDetails: (json['transDetails'] as List?)
-          ?.map((e) => PaymentRecord.fromJson(e))
-          .toList(),
+      transDetails: json['transDetails'],
     );
   }
 
@@ -40,7 +38,7 @@ class BatchSummary {
   final Stats saleStats; // 成功总笔数和总金额
   final Stats voidStats; // 撤单总笔数和总金额
   final Stats failedStats; // 失败总笔数和总金额
-  final List<PaymentRecord>? transDetails; // 交易详细信息列表
+  final String? transDetails; // 交易详细信息列表
 
   Map<String, dynamic> toJson() => {
     'terminal': terminal,
@@ -50,7 +48,7 @@ class BatchSummary {
     'saleStats': saleStats,
     'voidStats': voidStats,
     'failedStats': failedStats,
-    'transDetails': transDetails?.map((e) => e.toJson()).toList(),
+    'transDetails': transDetails,
   };
 }
 

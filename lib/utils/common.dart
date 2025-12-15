@@ -85,15 +85,6 @@ String sha256Hex(String input) {
   return digest.toString().toUpperCase(); // 变成你要的大写 HEX
 }
 
-/// 通用 SHA256 签名方法
-/// [fields]：需要参与签名的字段列表，顺序会影响签名结果
-String generateSha256Sign(List<dynamic> fields) {
-  // 强制把所有字段转成 String，再拼接
-  final concatenated = fields.map((e) => e.toString()).join();
-
-  return sha256Hex(concatenated);
-}
-
 String createSign(Map<String, String> params, String secureKey) {
   final sorted = SplayTreeMap<String, String>.from(params);
   final buffer = StringBuffer();
