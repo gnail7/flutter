@@ -64,6 +64,7 @@ class LoginController extends GetxController {
   }
 
   Future<bool> _fetchSecureKey() async {
+    Get.toNamed(AppRoutes.home);
     try {
       final response = await LoginApi.fetchSecureKey(
         SecureKeyRequest(
@@ -139,7 +140,6 @@ class LoginController extends GetxController {
       showCenterToast('$e', type: ToastType.error);
     } finally {
       isLoading.value = false; // 结束 loading
-      print('isLoading ${isLoading.value}');
     }
   }
 

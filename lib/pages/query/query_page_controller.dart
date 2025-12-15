@@ -11,6 +11,7 @@ import 'package:op_flutter/utils/sign_helper_epay.dart';
 
 class QueryPageController extends GetxController {
   final userController = UserController.to;
+  var isLoading = false.obs;
   var items = <Map<String, dynamic>>[].obs;
   var batchSummary = Rxn<BatchSummary>();
 

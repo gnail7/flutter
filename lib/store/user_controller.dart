@@ -1,15 +1,7 @@
-
-
-import 'dart:ffi';
-
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:op_flutter/models/users/user_model.dart';
-import 'package:op_flutter/network/login/api.dart';
-import 'package:op_flutter/network/login/login_request.dart';
 import 'package:op_flutter/routes/app_routes.dart';
-import 'package:op_flutter/utils/common.dart';
-import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 

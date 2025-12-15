@@ -8,6 +8,7 @@ import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
+import 'package:op_flutter/pages/void/void_page.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
 import '../pages/login/login_page.dart';
 
@@ -50,7 +51,7 @@ import '../pages/login/login_page.dart';
       GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage()),
       GetPage(name: AppRoutes.settlement, page: () => SettlementPage()),
       GetPage(name: AppRoutes.scanQrCode, page: ()=> QRScanPage()),
-      GetPage(name: AppRoutes.failTrans, page: () => VoidPage(), middlewares: []),
+      GetPage(name: AppRoutes.voidPage, page: () => VoidPageEntry()),
       GetPage(name: AppRoutes.aboutUs, page: () => AboutPage())
     ];
   }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:op_flutter/constant/common.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
+import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/paginated_page_list.dart';
 import 'package:op_flutter/pages/query/query_page_controller.dart';
 
@@ -13,71 +14,78 @@ class SearchPrintPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.bgGrey,
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: const Text(
-          'Search & Print',
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () async {
-              await showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (_) => FilterSheet(controller: controller),
-              );
-            },
-            color: Colors.white,
-          ),
-
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: controller.refreshList,
-            color: Colors.white,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Obx(() {
-            final batch = controller.batchSummary.value;
-            if (batch == null) {
-              return const SizedBox.shrink();
-            }
-            return BatchCardWidget(
-              batchNo: batch.batchNo,
-              totalAmount: batch.totalAmount,
-              currency: UserController.to.user.value!.currency,
-              saleCount: batch.saleStats.count,
-              voidCount: batch.voidStats.count,
-              failCount: batch.failedStats.count,
-              onSumPrint: () => print('Sum Print clicked'),
-              onBatchPrint: () => print('Batch Print clicked'),
-            );
-          }),
-          Expanded(
-            child: PaginatedListView<Map<String, dynamic>>(
-              pageSize: controller.pageSize,
-              fetchData: (page) async {
-                await controller.loadPage();
-                return controller.items.toList();
-              },
-              itemBuilder: (context, item, index) {
-                return PaymentItemWidget(payment: item);
-              },
+    return Obx(() {
+      return LoadingWrapper(
+        isLoading: controller.isLoading.value,
+        child: Scaffold(
+          backgroundColor: AppColor.bgGrey,
+          appBar: AppBar(
+            backgroundColor: Colors.green,
+            title: const Text(
+              'Search & Print',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
-          )
-        ],
-      ),
-    );
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Get.back(),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.filter_alt),
+                onPressed: () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => FilterSheet(controller: controller),
+                  );
+                },
+                color: Colors.white,
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: controller.refreshList,
+                color: Colors.white,
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              Obx(() {
+                final batch = controller.batchSummary.value;
+                if (batch == null) {
+                  return const SizedBox.shrink();
+                }
+                return BatchCardWidget(
+                  batchNo: batch.batchNo,
+                  totalAmount: batch.totalAmount,
+                  currency: UserController.to.user.value!.currency,
+                  saleCount: batch.saleStats.count,
+                  voidCount: batch.voidStats.count,
+                  failCount: batch.failedStats.count,
+                  onSumPrint: () => print('Sum Print clicked'),
+                  onBatchPrint: () => print('Batch Print clicked'),
+                );
+              }),
+              Expanded(
+                child: PaginatedListView<Map<String, dynamic>>(
+                  pageSize: controller.pageSize,
+                  fetchData: (page) async {
+                    await controller.loadPage();
+                    return controller.items.toList();
+                  },
+                  itemBuilder: (context, item, index) {
+                    return PaymentItemWidget(payment: item);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
 
