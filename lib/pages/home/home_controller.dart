@@ -11,7 +11,7 @@ class HomeController extends GetxController {
   // 后台配置结果
   final userController = Get.find<UserController>();
 
-  final mode = ScanMode.passive.obs;
+  final mode = ScanMode.both.obs;
 
   void _updateModeFromUser() {
     final supportPayType = userController.user.value?.supportPayType ?? 0;

@@ -9,6 +9,7 @@ import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/query/summary_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
+import 'package:op_flutter/pages/system_info/reset_password/reset_password.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
 import 'package:op_flutter/pages/void/void_page.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
@@ -19,7 +20,6 @@ import '../pages/login/login_page.dart';
     static const login = '/login';
     static const home = '/home';
     static const system = '/system';
-
     /// 扫码
     static const scanQrCode = '/scan-qr-code';
     /// 查询模块
@@ -30,18 +30,18 @@ import '../pages/login/login_page.dart';
     static const voidPage = '/void';
     /// 失败交易模块
     static const failTrans = '/failed-trans';
-
     /// 二维码被扫页面
     static const qrCode = '/qr-code';
-
     /// 查询汇总页面
     static const querySummaryPage = '/query-summary-page';
     /// 交易详情页面
     static const paymentDetailPage = '/payment-detail-page';
-    // /// 密码验证
-    // static const passwordVerify = '/password-verify';
-
+    /// 重制密码
+    static const resetPassword = '/reset-password';
+    /// 关于我们
     static const aboutUs = '/about-us';
+    /// 用户管理
+    static const userManagement = '/user-management';
   }
 
   /// 所有路由页面配置
@@ -64,6 +64,7 @@ import '../pages/login/login_page.dart';
       GetPage(name: AppRoutes.voidPage, page: () => VoidPageEntry()),
       GetPage(name: AppRoutes.aboutUs, page: () => const AboutPage()),
       GetPage(name: AppRoutes.qrCode, page: () => QrCodePage()),
-      GetPage(name: AppRoutes.querySummaryPage, page: () => SummaryPage())
+      GetPage(name: AppRoutes.querySummaryPage, page: () => SummaryPage()),
+      GetPage(name: AppRoutes.resetPassword, page: () => ChangePasswordEntry())
     ];
   }

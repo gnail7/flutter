@@ -30,18 +30,17 @@ class HomeButton extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        Get.toNamed(name);
-        // final result = await AuthGuard.check(name);
-        // /// 无需settlement
-        // if (result == AuthCheckResult.allow) {
-        //   Get.toNamed(name);
-        // }
-        // /// 是否超过七天没有settlement了
-        // else if (result == AuthCheckResult.needVerify) {
-        //   Get.toNamed(AppRoutes.settlement);
-        // } else {
-        //   Get.toNamed(name);
-        // }
+        final result = await AuthGuard.check(name);
+        /// 无需settlement
+        if (result == AuthCheckResult.allow) {
+          Get.toNamed(name);
+        }
+        /// 是否超过七天没有settlement了
+        else if (result == AuthCheckResult.needVerify) {
+          Get.toNamed(AppRoutes.settlement);
+        } else {
+          Get.toNamed(name);
+        }
       },
       child: Container(
         alignment: Alignment.center,

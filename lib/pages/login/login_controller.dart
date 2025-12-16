@@ -64,7 +64,6 @@ class LoginController extends GetxController {
   }
 
   Future<bool> _fetchSecureKey() async {
-    Get.toNamed(AppRoutes.home);
     try {
       final response = await LoginApi.fetchSecureKey(
         SecureKeyRequest(
