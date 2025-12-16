@@ -90,11 +90,11 @@ Color _getBackgroundColor(ToastType type) {
     case ToastType.success:
       return Colors.white; // success 白色背景
     case ToastType.warning:
-      return Colors.orange.shade100;
+      return Colors.white;
     case ToastType.error:
-      return Colors.red.shade100;
+      return Colors.white;
     case ToastType.info:
-    return Colors.blue.shade100;
+    return Colors.white;
   }
 }
 

@@ -35,6 +35,7 @@ class UserController extends GetxController {
   /// 登出
   Future<bool> logout() async {
     try {
+      print('logout ${user.value}');
       if (user.value != null) {
         // 清理本地缓存，保留 tid/uid
         final prefs = await SharedPreferences.getInstance();
@@ -51,7 +52,7 @@ class UserController extends GetxController {
         }
 
         user.value = null;
-        Get.offAllNamed(AppRoutes.home);
+        Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
       // 可以记录错误或提示用户

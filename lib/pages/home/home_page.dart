@@ -44,29 +44,31 @@ class HomePage extends StatelessWidget {
               child: Container(
                 color: AppColor.primaryBgColor,
                 child: Center(
-                  child: Wrap(
-                    spacing: 32,        // 水平按钮间距
-                    runSpacing: 16,     // 不会换行，但必须给
-                    alignment: WrapAlignment.center,
+                  child: Row(
                     children: [
                       if (btns.contains(HomeButtonType.scan))
-                        HomeButton(
-                          title: "Scan",
-                          icon: getIconForButton(HomeButtonType.scan),
-                          textColor: Colors.white,
-                          backgroundColor: AppColor.primaryBgColor,
-                          showBorder: false,
-                          name: AppRoutes.scanQrCode,
+                        Expanded(
+                          child: HomeButton(
+                            title: "Scan",
+                            icon: getIconForButton(HomeButtonType.scan),
+                            textColor: Colors.white,
+                            backgroundColor: AppColor.primaryBgColor,
+                            showBorder: false,
+                            name: AppRoutes.scanQrCode,
+                          ),
                         ),
-
+                      if (btns.contains(HomeButtonType.scan) && btns.contains(HomeButtonType.qrCode))
+                        const SizedBox(width: 32), // 两个按钮之间间距
                       if (btns.contains(HomeButtonType.qrCode))
-                        HomeButton(
-                          title: "QR Code",
-                          icon: getIconForButton(HomeButtonType.qrCode),
-                          textColor: Colors.white,
-                          backgroundColor: AppColor.primaryBgColor,
-                          showBorder: false,
-                          name: AppRoutes.transaction,
+                        Expanded(
+                          child: HomeButton(
+                            title: "QR Code",
+                            icon: getIconForButton(HomeButtonType.qrCode),
+                            textColor: Colors.white,
+                            backgroundColor: AppColor.primaryBgColor,
+                            showBorder: false,
+                            name: AppRoutes.transaction,
+                          ),
                         ),
                     ],
                   ),

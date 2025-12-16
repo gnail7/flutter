@@ -1,10 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:op_flutter/routes/app_routes.dart';
+import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
+import 'package:op_flutter/widgets/password_verify.dart';
+import 'package:op_flutter/widgets/permission_wrapper.dart';
 import 'package:op_flutter/widgets/toast.dart';
+
+class SettlementPageEntry extends StatelessWidget {
+  const SettlementPageEntry({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settNeedPass = UserController.to.user.value?.settNeedPass;
+    final settPass = UserController.to.user.value?.settPass;
+    return PermissionWrapper(
+      // 有密码才需要校验
+      shouldShowPasswordPage: () => settNeedPass == 1,
+
+      // 校验通过后展示的真正页面
+      child: const SettlementPage(),
+
+      // 密码页
+      passwordPageBuilder: (onSuccess) => PasswordVerifyPage(
+        appBarTitle: 'Settlement Verification',
+        descriptionText: 'Please enter the settlement password to continue',
+        correctPassword: settPass ?? '',
+        onSuccess: onSuccess,
+      ),
+    );
+  }
+}
 
 
 class SettlementPage extends StatefulWidget {
@@ -159,13 +187,13 @@ class StackCard extends StatelessWidget {
 
 // ------------------ 撕口卡片 ------------------
 class TearCard extends StatelessWidget {
-  final Widget child;
   const TearCard({required this.child, super.key});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
         color: Colors.white, // 直接在这里设置白色
@@ -177,13 +205,7 @@ class TearCard extends StatelessWidget {
   }
 }
 
-
 class DashLineWithCorner extends StatelessWidget {
-  final double height;
-  final double dashWidth;
-  final double dashGap;
-  final Color color;
-  final double cornerRadius;
 
   const DashLineWithCorner({
     this.height = 2,
@@ -193,6 +215,11 @@ class DashLineWithCorner extends StatelessWidget {
     this.cornerRadius = 8,
     super.key,
   });
+  final double height;
+  final double dashWidth;
+  final double dashGap;
+  final Color color;
+  final double cornerRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -216,8 +243,8 @@ class DashLineWithCorner extends StatelessWidget {
 }
 
 class _DashClipper extends CustomClipper<Path> {
-  final double cornerRadius;
   _DashClipper({required this.cornerRadius});
+  final double cornerRadius;
 
   @override
   Path getClip(Size size) {
@@ -256,11 +283,6 @@ class _DashClipper extends CustomClipper<Path> {
 }
 
 class _DashPainter extends CustomPainter {
-  final double dashWidth;
-  final double dashGap;
-  final Color color;
-  final double lineHeight;
-  final double cornerRadius;
 
   _DashPainter({
     required this.dashWidth,
@@ -269,6 +291,11 @@ class _DashPainter extends CustomPainter {
     required this.lineHeight,
     required this.cornerRadius,
   });
+  final double dashWidth;
+  final double dashGap;
+  final Color color;
+  final double lineHeight;
+  final double cornerRadius;
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -28,8 +28,8 @@ import '../pages/login/login_page.dart';
     static const voidPage = '/void';
     /// 失败交易模块
     static const failTrans = '/failed-trans';
-    /// 密码验证
-    static const passwordVerify = '/password-verify';
+    // /// 密码验证
+    // static const passwordVerify = '/password-verify';
 
     static const aboutUs = '/about-us';
   }
@@ -48,8 +48,8 @@ import '../pages/login/login_page.dart';
       ),
       GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),),
       GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage()),
-      GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage()),
-      GetPage(name: AppRoutes.settlement, page: () => SettlementPage()),
+      // GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage()),
+      GetPage(name: AppRoutes.settlement, page: () => const SettlementPageEntry()),
       GetPage(name: AppRoutes.scanQrCode, page: ()=> QRScanPage()),
       GetPage(name: AppRoutes.voidPage, page: () => VoidPageEntry()),
       GetPage(name: AppRoutes.aboutUs, page: () => AboutPage())

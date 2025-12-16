@@ -1,172 +1,162 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:op_flutter/theme/app_colors.dart';
+import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
+import 'package:op_flutter/widgets/toast.dart';
 
 class PasswordVerifyPage extends StatefulWidget {
-  const PasswordVerifyPage({super.key});
+  const PasswordVerifyPage({
+    required this.onSuccess,
+    required this.correctPassword,
+    this.appBarTitle = 'Security Verification',
+    this.descriptionText = 'Please enter the password to continue',
+    super.key,
+  });
+
+  final VoidCallback onSuccess;
+  final String correctPassword;
+  final String appBarTitle;
+  final String descriptionText;
 
   @override
   State<PasswordVerifyPage> createState() => _PasswordVerifyPageState();
 }
 
 class _PasswordVerifyPageState extends State<PasswordVerifyPage> {
-  late final String title;
-  late final String? redirectRoute; // 新增跳转路径参数
-  final TextEditingController _pwdController = TextEditingController();
-  bool loading = false;
-  bool isButtonEnabled = false;
+  final _controller = TextEditingController();
+  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    final args = Get.arguments ?? {};
-    title = args["title"] ?? "Verification";
-    redirectRoute = args["redirectRoute"];
-  }
+  Future<void> _handleVerify() async {
+    if (_controller.text.isEmpty) return;
 
+    setState(() => _isLoading = true);
 
+    try {
+      await Future.delayed(const Duration(milliseconds: 600));
 
-  Future<void> handleOK() async {
-    if (!isButtonEnabled) return;
-
-    final pwd = _pwdController.text.trim();
-    // // 显示 Loading
-    // showDialog(
-    //   context: Get.context!,
-    //   barrierDismissible: false,
-    //   builder: (_) => const CustomLoadingDialog(),
-    // );
-    setState(() => loading = true);
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() => loading = false);
-    if (pwd == "123456") {
-      if (redirectRoute != null && redirectRoute!.isNotEmpty) {
-        Get.offNamed(redirectRoute!);
+      if (sha256Hex(_controller.text) == widget.correctPassword) {
+        widget.onSuccess();
       } else {
-        Get.offNamed("/clearMachine");
+        showCenterToast('密码错误',type: ToastType.warning);
       }
-    } else {
-      Get.snackbar(
-        "Error",
-        "Password incorrect",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade400,
-        colorText: Colors.white,
-      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.bgGrey,
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 40),
-
-            // SVG 图标
-            SvgPicture.asset(
-              'images/password.svg',
-              width: 80,
-              height: 80,
-            ),
-
-            const SizedBox(height: 20),
-            Text(
-              "Please Enter Password",
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: AppColor.greyColor),
-            ),
-
-            const SizedBox(height: 30),
-
-            // 输入框 & OK 按钮卡片
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  )
-                ],
-              ),
-              child: Column(
-                children: [
-                  // 密码输入框
-                  TextField(
-                    controller: _pwdController,
-                    obscureText: true,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(6),
-                    ],
-                    onChanged: (v) {
-                      setState(() => isButtonEnabled = v.length == 6);
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      counterText: "",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+    return LoadingWrapper(
+      isLoading: _isLoading,
+      text: 'Verifying...',
+      color: AppColor.primaryColor,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF6F8FA),
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: AppColor.primaryColor,
+          title: Text(widget.appBarTitle),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ===== 顶部图标 =====
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: AppColor.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
+                  child: Icon(
+                    Icons.lock_outline,
+                    size: 48,
+                    color: AppColor.primaryColor,
+                  ),
+                ),
 
-                  const SizedBox(height: 30),
+                const SizedBox(height: 16),
 
-                  // OK 按钮
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: (isButtonEnabled && !loading)
-                          ? handleOK
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isButtonEnabled
-                            ? Colors.green
-                            : Colors.grey.shade400,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                const Text(
+                  'Password Required',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  widget.descriptionText,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 24),
+
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _controller,
+                          obscureText: true,
+                          enabled: !_isLoading,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            hintText: 'Enter password',
+                            prefixIcon: const Icon(Icons.lock),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: loading
-                          ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
-                          : const Text(
-                        "OK",
-                        style: TextStyle(
-                            fontSize: 18, color: Colors.white),
-                      ),
+
+                        const SizedBox(height: 20),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleVerify,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColor.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Verify',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

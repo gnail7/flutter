@@ -16,13 +16,13 @@ class HomeController extends GetxController {
   void _updateModeFromUser() {
     final supportPayType = userController.user.value?.supportPayType ?? 0;
     switch (supportPayType) {
-      case 0:
+      case 1:
         mode.value = ScanMode.active;
         break;
-      case 1:
+      case 2:
         mode.value = ScanMode.passive;
         break;
-      case 2:
+      case 3:
         mode.value = ScanMode.both;
         break;
       default:

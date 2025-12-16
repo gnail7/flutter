@@ -173,8 +173,8 @@ class LoginController extends GetxController {
 
     // 2️⃣ 是否允许自动登录
     final multiUser = localMap['multiUser'] ?? 1;
-
     if (multiUser == 0) {
+      handleLogin(useToken: true);
       shouldAutoLogin.value = true;
     } else {
       shouldAutoLogin.value = false;

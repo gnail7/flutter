@@ -1,13 +1,10 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
-import 'package:op_flutter/mock/index.dart';
 import 'package:op_flutter/models/query/enum.dart';
 import 'package:op_flutter/models/query/payment_record.dart';
 import 'package:op_flutter/network/query/api.dart';
 import 'package:op_flutter/network/query/query_request.dart';
 import 'package:op_flutter/store/user_controller.dart';
-import 'package:op_flutter/utils/sign_helper_epay.dart';
 
 class QueryPageController extends GetxController {
   final userController = UserController.to;
@@ -23,8 +20,15 @@ class QueryPageController extends GetxController {
   var paymentFilter = ''.obs;
   var typeFilter = ''.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    refreshList();
+  }
+
   /// 分页加载数据
   Future<void> loadPage({bool refresh = false}) async {
+    isLoading.value = true;
     if (refresh) {
       page = 1;
       hasMore.value = true;
@@ -85,6 +89,8 @@ class QueryPageController extends GetxController {
 
     } catch (e) {
       print('❌ 请求异常: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
