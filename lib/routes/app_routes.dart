@@ -4,7 +4,9 @@ import 'package:op_flutter/pages/about_us/about_us.dart';
 import 'package:op_flutter/pages/failed_trans/fail_trans_page.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/login/login_binding.dart';
+import 'package:op_flutter/pages/qr_code/qr_code.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
+import 'package:op_flutter/pages/query/summary_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
@@ -28,6 +30,14 @@ import '../pages/login/login_page.dart';
     static const voidPage = '/void';
     /// 失败交易模块
     static const failTrans = '/failed-trans';
+
+    /// 二维码被扫页面
+    static const qrCode = '/qr-code';
+
+    /// 查询汇总页面
+    static const querySummaryPage = '/query-summary-page';
+    /// 交易详情页面
+    static const paymentDetailPage = '/payment-detail-page';
     // /// 密码验证
     // static const passwordVerify = '/password-verify';
 
@@ -52,6 +62,8 @@ import '../pages/login/login_page.dart';
       GetPage(name: AppRoutes.settlement, page: () => const SettlementPageEntry()),
       GetPage(name: AppRoutes.scanQrCode, page: ()=> QRScanPage()),
       GetPage(name: AppRoutes.voidPage, page: () => VoidPageEntry()),
-      GetPage(name: AppRoutes.aboutUs, page: () => AboutPage())
+      GetPage(name: AppRoutes.aboutUs, page: () => const AboutPage()),
+      GetPage(name: AppRoutes.qrCode, page: () => QrCodePage()),
+      GetPage(name: AppRoutes.querySummaryPage, page: () => SummaryPage())
     ];
   }

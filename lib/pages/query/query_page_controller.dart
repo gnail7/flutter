@@ -4,6 +4,7 @@ import 'package:op_flutter/models/query/enum.dart';
 import 'package:op_flutter/models/query/payment_record.dart';
 import 'package:op_flutter/network/query/api.dart';
 import 'package:op_flutter/network/query/query_request.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/store/user_controller.dart';
 
 class QueryPageController extends GetxController {
@@ -111,5 +112,10 @@ class QueryPageController extends GetxController {
   /// 下拉刷新列表
   void refreshList() {
     loadPage(refresh: true);
+  }
+
+  /// 处理汇总打印
+  void handleSumPrint() {
+    Get.toNamed(AppRoutes.querySummaryPage);
   }
 }

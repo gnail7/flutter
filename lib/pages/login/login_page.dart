@@ -87,8 +87,6 @@ class _OceanPayLoginView extends GetView<LoginController> {
   }
 }
 
-
-
 class _LoginCard extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {

@@ -129,7 +129,7 @@ class LoginController extends GetxController {
       data.secureKey = secureKey;
 
       UserController.to.setUser(data);
-      prefs.setString('user_data', jsonEncode(data));
+      await prefs.setString('user_data', jsonEncode(data));
       await saveRecentLoginDate();
 
       isLoggedIn.value = true;
@@ -174,7 +174,7 @@ class LoginController extends GetxController {
     // 2️⃣ 是否允许自动登录
     final multiUser = localMap['multiUser'] ?? 1;
     if (multiUser == 0) {
-      handleLogin(useToken: true);
+      await handleLogin(useToken: true);
       shouldAutoLogin.value = true;
     } else {
       shouldAutoLogin.value = false;

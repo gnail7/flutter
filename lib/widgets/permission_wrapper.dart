@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 /// 根据条件展示密码页或目标页面
 class PermissionWrapper extends StatelessWidget {
   const PermissionWrapper({
-    super.key,
-    required this.shouldShowPasswordPage,
-    required this.child,
-    required this.passwordPageBuilder,
+    required this.shouldShowPasswordPage, required this.child, required this.passwordPageBuilder, super.key,
   });
 
   /// 条件函数，返回 true 表示需要显示密码页

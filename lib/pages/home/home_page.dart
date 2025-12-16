@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
                             textColor: Colors.white,
                             backgroundColor: AppColor.primaryBgColor,
                             showBorder: false,
-                            name: AppRoutes.transaction,
+                            name: AppRoutes.qrCode,
                           ),
                         ),
                     ],

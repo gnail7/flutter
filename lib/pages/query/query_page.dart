@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/constant/common.dart';
+import 'package:op_flutter/pages/query/payment_detail_page.dart';
+import 'package:op_flutter/pages/query/search_bill_page.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
@@ -20,7 +22,7 @@ class SearchPrintPage extends StatelessWidget {
         child: Scaffold(
           backgroundColor: AppColor.bgGrey,
           appBar: AppBar(
-            backgroundColor: Colors.green,
+            backgroundColor: AppColor.primaryColor,
             title: const Text(
               'Search & Print',
               style: TextStyle(
@@ -65,7 +67,7 @@ class SearchPrintPage extends StatelessWidget {
                   saleCount: batch.saleStats.count,
                   voidCount: batch.voidStats.count,
                   failCount: batch.failedStats.count,
-                  onSumPrint: () => print('Sum Print clicked'),
+                  onSumPrint: controller.handleSumPrint,
                   onBatchPrint: () => print('Batch Print clicked'),
                 );
               }),
@@ -158,7 +160,11 @@ class PaymentItemWidget extends StatelessWidget {
             ),
           ],
         ),
-        onTap: () => print('点击支付订单号: ${payment["paymentId"]}'),
+        onTap: () {
+          Get.to(() => PaymentDetailPage(
+            payment: payment,
+          ));
+        },
       ),
     );
   }
@@ -260,8 +266,7 @@ class FilterSheet extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  controller.refreshList();
+                  Get.to(() => const SearchBillPage());
                 },
                 child: const Text('Search by Bill No. or Amount'),
               ),

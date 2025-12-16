@@ -7,9 +7,7 @@ typedef EmptyWidgetBuilder = Widget Function(BuildContext context);
 class PaginatedListView<T> extends StatefulWidget { // 空数据视图
 
   const PaginatedListView({
-    super.key,
-    required this.fetchData,
-    required this.itemBuilder,
+    required this.fetchData, required this.itemBuilder, super.key,
     this.pageSize = 10,
     this.emptyBuilder,
   });
