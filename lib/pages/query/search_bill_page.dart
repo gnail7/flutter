@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/theme/app_colors.dart';
+import 'package:op_flutter/widgets/qr_scan_page.dart';
 
 class SearchBillPage extends StatefulWidget {
   const SearchBillPage({super.key});
@@ -142,10 +145,26 @@ class _SearchBillPageState extends State<SearchBillPage> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          suffixIcon: Icon(
-                            _mode == "Bill No." ? Icons.confirmation_number_outlined : Icons.payments_outlined,
-                            color: Colors.grey.shade600,
-                          ),
+                            suffixIcon: _mode == "Bill No."
+                                ? IconButton(
+                              icon: const Icon(Icons.qr_code_scanner),
+                              color: Colors.grey.shade600,
+                              onPressed: () async {
+                                final result = await Get.to<String>(
+                                      () => const QRScanTemplatePage(),
+                                );
+
+                                if (result != null && result.isNotEmpty) {
+                                  setState(() {
+                                    _controller.text = result; // 回填扫码结果
+                                  });
+                                }                              },
+                            )
+                                : Icon(
+                              Icons.payments_outlined,
+                              color: Colors.grey.shade600,
+                            ),
+
                         ),
                       ),
 

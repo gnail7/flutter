@@ -1,9 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:op_flutter/store/user_controller.dart';
-import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
 import 'package:op_flutter/widgets/permission_wrapper.dart';
 
@@ -14,7 +10,7 @@ class VoidPageEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PermissionWrapper(
-      shouldShowPasswordPage: () => UserController.to.user.value?.voidNeedPass == 1,
+      shouldShowPasswordPage: () => UserController.to.user.value?.voidNeedPass  == 1,
       child: VoidPage(),
       passwordPageBuilder: (onSuccess) => PasswordVerifyPage(onSuccess: onSuccess, correctPassword: UserController.to.user.value!.voidPass!, appBarTitle: 'Void',),
     );
@@ -31,5 +27,4 @@ class VoidPage extends StatelessWidget {
       ),
     );
   }
-
 }
