@@ -5,7 +5,9 @@ import 'package:op_flutter/pages/failed_trans/fail_trans_page.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/login/login_binding.dart';
 import 'package:op_flutter/pages/qr_code/qr_code.dart';
+import 'package:op_flutter/pages/query/controller/search_page_controller.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
+import 'package:op_flutter/pages/query/search_result_page.dart';
 import 'package:op_flutter/pages/query/summary_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
@@ -42,6 +44,8 @@ import '../pages/login/login_page.dart';
     static const aboutUs = '/about-us';
     /// 用户管理
     static const userManagement = '/user-management';
+    /// 搜索结果页面
+    static const searchResultPage = '/searchResult';
   }
 
   /// 所有路由页面配置
@@ -58,13 +62,17 @@ import '../pages/login/login_page.dart';
       ),
       GetPage(name: AppRoutes.system, page: ()=> SystemInfoPage(),),
       GetPage(name: AppRoutes.transaction, page: () => SearchPrintPage()),
-      // GetPage(name: AppRoutes.passwordVerify, page: () => PasswordVerifyPage()),
       GetPage(name: AppRoutes.settlement, page: () => const SettlementPageEntry()),
-      GetPage(name: AppRoutes.scanQrCode, page: ()=> QRScanPage()),
+      GetPage(name: AppRoutes.scanQrCode, page: ()=> QRScanEntryPage()),
       GetPage(name: AppRoutes.voidPage, page: () => VoidPageEntry()),
       GetPage(name: AppRoutes.aboutUs, page: () => const AboutPage()),
       GetPage(name: AppRoutes.qrCode, page: () => QrCodePage()),
       GetPage(name: AppRoutes.querySummaryPage, page: () => SummaryPage()),
-      GetPage(name: AppRoutes.resetPassword, page: () => ChangePasswordEntry())
+      GetPage(name: AppRoutes.resetPassword, page: () => const ChangePasswordEntry()),
+      GetPage(
+        name: AppRoutes.searchResultPage,
+        page: () => SearchResultPage(),
+      ),
+      GetPage(name: AppRoutes.failTrans, page: () => FailedTransactionPage())
     ];
   }

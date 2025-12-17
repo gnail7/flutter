@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
+import 'package:op_flutter/pages/query/payment_detail_page.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/qr_scan_page.dart';
 
@@ -175,9 +176,25 @@ class _SearchBillPageState extends State<SearchBillPage> {
                         width: double.infinity,
                         height: 46,
                         child: ElevatedButton(
-                          onPressed: () {
-                            final value = _controller.text.trim();
-                          },
+                            onPressed: () {
+                              final keyword = _controller.text.trim();
+                              if (keyword.isEmpty) {
+                                return;
+                              }
+
+                              // Bill No. 类型直接跳详情页
+                              if (_mode == "Bill No.") {
+                                final orderNo = keyword; // 用户输入的单号
+                                Get.to(() => PaymentDetailPage(orderNo: orderNo));
+                                return;
+                              }
+
+                              // Amount 类型跳 SearchResultPage
+                              Get.toNamed(AppRoutes.searchResultPage, arguments: {
+                                'keyword': keyword,
+                                'transType': 0, // 或你需要的类型
+                              });
+                            },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:  _controller.text.trim().isNotEmpty ? AppColor.primaryColor :  const Color(0xFF6D6D6D),
                             foregroundColor: Colors.white,

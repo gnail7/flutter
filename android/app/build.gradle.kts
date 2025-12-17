@@ -42,3 +42,7 @@ android {
 flutter {
     source = "../.."
 }
+// 添加pos机打印jar包
+dependencies {
+    implementation(files("libs/NeptuneLiteApi_V4.16.00_20250704.jar"))
+}

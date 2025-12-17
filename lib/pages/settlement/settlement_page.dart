@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:op_flutter/models/query/payment_record.dart';
+import 'package:op_flutter/network/query/api.dart';
+import 'package:op_flutter/network/query/query_request.dart';
+import 'package:op_flutter/network/sett/api.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
@@ -19,7 +23,6 @@ class SettlementPageEntry extends StatelessWidget {
     return PermissionWrapper(
       // 有密码才需要校验
       shouldShowPasswordPage: () => settNeedPass == 1,
-
       // 校验通过后展示的真正页面
       child: const SettlementPage(),
 
@@ -44,7 +47,92 @@ class SettlementPage extends StatefulWidget {
 
 class _SettlementPageState extends State<SettlementPage> {
   bool loading = false;
-  void handleConfirm() {}
+  BatchSummary? summary;
+  String? error;
+
+  Future<void> handleConfirm() async {
+    final user = UserController.to.user.value;
+
+    if (user == null) {
+      showCenterToast('User not logged in', type: ToastType.error);
+      return;
+    }
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      final res = await SettApi.cleanSettlement(
+        terminal: user.terminal!,
+        batchNo: user.batchNo!,
+        orderNo: user.orderNo,
+        token: user.token!,
+      );
+
+      if (res.code == '0') {
+        showCenterToast('Settlement success');
+
+        // 1️⃣ 回首页
+        Get.offAllNamed(AppRoutes.home);
+
+        // setState(() {});
+      } else {
+        showCenterToast(
+          res.message ?? 'Settlement failed',
+          type: ToastType.error,
+        );
+      }
+    } catch (e) {
+      showCenterToast(
+        'Network error, please try again',
+        type: ToastType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> fetchSummary() async {
+    final user = UserController.to.user.value;
+    if (user == null) return;
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      final params = QueryParams(
+        terminal: user.terminal!,
+        batchNo: user.batchNo!,
+        token: user.token!,
+        transType: 0, // 全部交易
+        needTransDetails: 0,
+      );
+
+      final res = await QueryApi.fetchSummaryTransactions(params);
+
+      if (res.code == '0' && res.data != null) {
+        setState(() {
+          summary = res.data;
+        });
+      } else {
+        error = res.message ?? 'Failed to load summary';
+      }
+    } catch (e) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = UserController.to.user.value;
@@ -80,10 +168,23 @@ class _SettlementPageState extends State<SettlementPage> {
                   const Divider(),
 
                   /// ===== 统计数据（示例）=====
-                  _buildRow('Sale', '10', '1000.00'),
-                  _buildRow('Void', '2', '100.00'),
-                  _buildRow('Fail', '1', '50.00'),
-
+                  if (summary != null) ...[
+                    _buildRow(
+                      'Sale',
+                      summary!.totalSale.toString(),
+                      'summary!.saleAmount.toStringAsFixed(2)',
+                    ),
+                    _buildRow(
+                      'Void',
+                      summary!.totalVoid.toString(),
+                     ' summary!.voidAmount.toStringAsFixed(2)',
+                    ),
+                    _buildRow(
+                      'Fail',
+                      summary!.totalFailed.toString(),
+                     'summary!.failAmount.toStringAsFixed(2)',
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   const Divider(thickness: 1),
                   const SizedBox(height: 12),

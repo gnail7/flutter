@@ -2,6 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/routes/app_routes.dart';
+import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/widgets/amount_input.dart';
+
+class QRScanEntryPage extends StatefulWidget {
+  const QRScanEntryPage({super.key});
+
+  @override
+  State<QRScanEntryPage> createState() => _QRScanEntryPageState();
+}
+
+class _QRScanEntryPageState extends State<QRScanEntryPage> {
+  double? amount;
+
+  @override
+  Widget build(BuildContext context) {
+    // 如果还没有输入金额，显示金额输入页面
+    if (amount == null) {
+      return AmountInputPOS(
+        currency: UserController.to.user.value!.currency,
+        onSuccess: (double inputAmount) {
+          setState(() {
+            amount = inputAmount;
+          });
+        },
+      );
+    }
+
+    // 已经输入金额，显示扫码页面（原来的 QRScanPage 不变）
+    return QRScanPageWithAmount(amount: amount!);
+  }
+}
+
+/// 包装原来的 QRScanPage，传入金额
+class QRScanPageWithAmount extends StatelessWidget {
+  const QRScanPageWithAmount({required this.amount, super.key});
+
+  final double amount;
+
+  @override
+  Widget build(BuildContext context) {
+    // 这里直接调用你原来的 QRScanPage
+    return QRScanPage(); // 注意：原来的 QRScanPage 不需要改
+  }
+}
 
 class QRScanPage extends StatefulWidget {
   const QRScanPage({super.key});

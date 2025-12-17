@@ -4,7 +4,7 @@ import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
-import 'package:op_flutter/pages/query/query_page_controller.dart';
+import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
 
 class SummaryPage extends StatelessWidget {
   SummaryPage({super.key});

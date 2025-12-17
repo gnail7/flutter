@@ -7,7 +7,7 @@ import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/paginated_page_list.dart';
-import 'package:op_flutter/pages/query/query_page_controller.dart';
+import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
 
 /// 主页面
 class SearchPrintPage extends StatelessWidget {
@@ -64,9 +64,9 @@ class SearchPrintPage extends StatelessWidget {
                   batchNo: batch.batchNo,
                   totalAmount: batch.totalAmount,
                   currency: UserController.to.user.value!.currency,
-                  saleCount: batch.saleStats.count,
-                  voidCount: batch.voidStats.count,
-                  failCount: batch.failedStats.count,
+                  saleCount: batch.totalSale,
+                  voidCount: batch.totalVoid,
+                  failCount: batch.totalFailed,
                   onSumPrint: controller.handleSumPrint,
                   onBatchPrint: () => print('Batch Print clicked'),
                 );
@@ -161,9 +161,7 @@ class PaymentItemWidget extends StatelessWidget {
           ],
         ),
         onTap: () {
-          Get.to(() => PaymentDetailPage(
-            payment: payment,
-          ));
+          Get.to(() => PaymentDetailPage(orderNo: payment['orderNo'],));
         },
       ),
     );

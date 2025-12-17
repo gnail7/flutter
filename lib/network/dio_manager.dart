@@ -99,6 +99,7 @@ class DioManager {
       );
 
       final result = response.data;
+      print('result $result');
       return decoder(result as Map<String, dynamic>);
     } catch (e) {
       return Future.error(e);

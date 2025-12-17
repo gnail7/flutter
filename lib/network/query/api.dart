@@ -31,12 +31,43 @@ class QueryApi {
     final requestMap = helper.getMap();
 
     return DioManager.request<ApiResponse<BatchSummary>>(
-      '/service/transaction/summary',
+      '/service/transaction/summary-method',
       method: 'POST',
       params: requestMap,
       decoder: (json) => ApiResponse<BatchSummary>.fromJson(
         json,
             (data) => BatchSummary.fromJson(data),
+      ),
+    );
+  }
+
+  /// 交易明细查询接口
+  static Future<ApiResponse<PaymentRecord>> fetchTransactionDetail({
+    required int terminal,
+    required String batchNo,
+    required String orderNo,
+    required String token,
+  }) async {
+    final helper = SignHelperEPay(UserController.to.user.value!.secureCode);
+
+    // 必传字段
+    helper.addKeyValue("terminal", terminal.toString());
+    helper.addKeyValue("batchNo", batchNo);
+    helper.addKeyValue("orderNo", orderNo);
+    helper.addKeyValue("token", token);
+
+
+    // 生成签名
+    helper.createSign();
+    final requestMap = helper.getMap();
+
+    return DioManager.request<ApiResponse<PaymentRecord>>(
+      '/service/transaction/detail',
+      method: 'POST',
+      params: requestMap,
+      decoder: (json) => ApiResponse<PaymentRecord>.fromJson(
+        json,
+            (data) => PaymentRecord.fromJson(data),
       ),
     );
   }

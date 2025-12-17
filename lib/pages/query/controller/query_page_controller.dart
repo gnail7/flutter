@@ -36,7 +36,9 @@ class QueryPageController extends GetxController {
       items.clear();
     }
 
-    if (!hasMore.value) return;
+    if (!hasMore.value) {
+      return;
+    }
 
     final token = userController.user.value?.token;
     final terminal = userController.user.value?.terminal;
@@ -62,23 +64,14 @@ class QueryPageController extends GetxController {
 
       batchSummary.value = res.data;
 
-      final detailsRaw = res.data?.transDetails;
-      List<Map<String, dynamic>> details = [];
+      batchSummary.value = res.data;
 
-      if (detailsRaw is String) {
-        try {
-          final parsed = jsonDecode(detailsRaw);
-          if (parsed is List) {
-            details = parsed.cast<Map<String, dynamic>>();
-          }
-        } catch (e) {
-          print('❌ 解析 transDetails 失败: $e');
-        }
-      }
+      // 直接取解析好的列表
+      final detailsList = res.data?.transDetails ?? [];
 
-      // 添加数据
-      if (details.isNotEmpty) {
-        items.addAll(details);
+      // 添加到 items 中，如果你的 items 仍然是 Map 则转一下
+      if (detailsList.isNotEmpty) {
+        items.addAll(detailsList.map((e) => e.toJson()));
       }
 
       // 根据 totalCount 判断是否还有更多
@@ -86,7 +79,9 @@ class QueryPageController extends GetxController {
       hasMore.value = items.length < totalCount;
 
       // 下一页
-      if (hasMore.value) page++;
+      if (hasMore.value) {
+        page++;
+      }
 
     } catch (e) {
       print('❌ 请求异常: $e');
