@@ -76,34 +76,43 @@ class DioManager {
         required T Function(Map<String, dynamic>) decoder,
         dynamic params,
         String method = "POST",
+        String? contentType, // 新增
       }) async {
     try {
       dynamic data;
 
-      if (method.toUpperCase() == "POST") {
-        // 如果是 FormData，直接使用；否则转换成 FormData
-        if (params is FormData) {
-          data = params;
-        } else if (params is Map<String, dynamic>) {
+      Options options = Options(method: method.toUpperCase());
+      if (contentType != null) {
+        options.contentType = contentType;
+      }
+
+      if (contentType != null) {
+        options.contentType = contentType;
+      } else if (method.toUpperCase() == "POST") {
+        // 如果是 POST 且没有 contentType，自动转换成 FormData
+        if (params is Map<String, dynamic>) {
           data = FormData.fromMap(params);
         } else {
           data = params;
         }
+      } else {
+        data = params;
       }
+
 
       Response response = await dio.request(
         url,
         data: data,
         queryParameters: method.toUpperCase() == "GET" ? params : null,
-        options: Options(method: method.toUpperCase()),
+        options: options,
       );
 
       final result = response.data;
-      print('result $result');
       return decoder(result as Map<String, dynamic>);
     } catch (e) {
       return Future.error(e);
     }
   }
+
 
 }
