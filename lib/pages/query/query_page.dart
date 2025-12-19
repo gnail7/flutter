@@ -177,7 +177,7 @@ class FilterSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      heightFactor: 0.35,
+      heightFactor: 0.5,
       widthFactor: 1,
       child: Padding(
         padding: EdgeInsets.only(
@@ -186,90 +186,92 @@ class FilterSheet extends StatelessWidget {
           right: 16,
           top: 16,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            const Text('支付方式', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Obx(() {
-              final paymentOptions = {
-                'Wechat': OceanConstants.methodWechatPay,
-                'Alipay': OceanConstants.methodAlipay,
-              };
-              return Wrap(
-                spacing: 12,
-                children: paymentOptions.entries.map((entry) {
-                  final display = entry.key; // 显示文本
-                  final value = entry.value; // 实际值
-                  final isSelected = controller.paymentFilter.value == value;
+              const Text('支付方式', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Obx(() {
+                final paymentOptions = {
+                  'Wechat': OceanConstants.methodWechatPay,
+                  'Alipay': OceanConstants.methodAlipay,
+                };
+                return Wrap(
+                  spacing: 12,
+                  children: paymentOptions.entries.map((entry) {
+                    final display = entry.key; // 显示文本
+                    final value = entry.value; // 实际值
+                    final isSelected = controller.paymentFilter.value == value;
 
-                  return ChoiceChip(
-                    label: Text(
-                      display,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+                    return ChoiceChip(
+                      label: Text(
+                        display,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
                       ),
-                    ),
-                    selected: isSelected,
-                    selectedColor: Colors.green,
-                    onSelected: (selected) {
-                      controller.paymentFilter.value = selected ? value : '';
-                      controller.refreshList();
-                    },
-                  );
-                }).toList(),
-              );
-            }),
-            const SizedBox(height: 16),
+                      selected: isSelected,
+                      selectedColor: Colors.green,
+                      onSelected: (selected) {
+                        controller.paymentFilter.value = selected ? value : '';
+                        controller.refreshList();
+                      },
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(height: 16),
 
-            const Text('交易类型', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Obx(() {
-              return Wrap(
-                spacing: 12,
-                children: ['Sale', 'Void', 'Failed'].map((type) {
-                  final isSelected = controller.typeFilter.value == type;
-                  return ChoiceChip(
-                    label: Text(
-                      type,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+              const Text('交易类型', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Obx(() {
+                return Wrap(
+                  spacing: 12,
+                  children: ['Sale', 'Void', 'Failed'].map((type) {
+                    final isSelected = controller.typeFilter.value == type;
+                    return ChoiceChip(
+                      label: Text(
+                        type,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
                       ),
-                    ),
-                    selected: isSelected,
-                    selectedColor: Colors.green,
-                    onSelected: (selected) {
-                      controller.refreshList();
-                      controller.typeFilter.value = selected ? type : '0';
-                    },
-                  );
-                }).toList(),
-              );
-            }),
-            const SizedBox(height: 16),
+                      selected: isSelected,
+                      selectedColor: Colors.green,
+                      onSelected: (selected) {
+                        controller.refreshList();
+                        controller.typeFilter.value = selected ? type : '0';
+                      },
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(height: 16),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.to(() => const SearchBillPage());
-                },
-                child: const Text('Search by Bill No. or Amount'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.to(() => const SearchBillPage());
+                  },
+                  child: const Text('Search by Bill No. or Amount'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

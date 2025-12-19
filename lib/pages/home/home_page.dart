@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/network/tcp_socket_service.dart';
 import 'package:op_flutter/pages/home/home_button.dart';
 import 'package:op_flutter/pages/home/home_controller.dart';
 import 'package:op_flutter/routes/app_routes.dart';
@@ -28,6 +29,7 @@ class HomePage extends StatelessWidget {
             color: Colors.white, // 图标颜色改为白色
           ),
           onPressed: () {
+            connectSecure();
             Get.toNamed(AppRoutes.system);
           },
         ),

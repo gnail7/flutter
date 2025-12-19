@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -8,7 +10,7 @@ plugins {
 android {
     namespace = "com.example.op_flutter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,17 +26,26 @@ android {
         applicationId = "com.example.op_flutter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        val flutterMinSdk = gradleLocalProperties(rootDir, project.providers)
+            .getProperty("flutter.minSdkVersion")?.toInt() ?: 21
+        minSdk = flutterMinSdk
+
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
@@ -42,7 +53,8 @@ android {
 flutter {
     source = "../.."
 }
-// 添加pos机打印jar包
+
 dependencies {
-    implementation(files("libs/NeptuneLiteApi_V4.16.00_20250704.jar"))
+    // Kotlin DSL 写法：使用 implementation() 函数
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

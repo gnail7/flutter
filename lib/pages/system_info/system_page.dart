@@ -83,6 +83,7 @@ class SystemInfoPage extends StatelessWidget {
 
   // ===== 顶部 UI  =====
   Widget _buildHeader(BuildContext context) {
+    final int role = UserController.to.user.value?.role ?? 0; // 获取当前角色
     return Container(
       height: 200,
       width: double.infinity,
@@ -122,19 +123,19 @@ class SystemInfoPage extends StatelessWidget {
             ),
           ),
 
-          // 返回按钮
-          Positioned(
-            top: 40,
-            left: 20,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: const CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white70,
-                child: Icon(Icons.arrow_back, color: Colors.black, size: 20),
+          if (role == 0)
+            Positioned(
+              top: 40,
+              left: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: const CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.white70,
+                  child: Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                ),
               ),
             ),
-          ),
           // 退出按钮
           Positioned(
             top: 40,

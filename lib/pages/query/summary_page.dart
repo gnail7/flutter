@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/utils/common.dart';
+import 'package:op_flutter/utils/print_helper.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
 
@@ -88,9 +90,25 @@ class SummaryPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        onPressed: () {
-                          /// TODO: 调用打印
-                          print('Summary Print');
+                        onPressed: () async{
+                          try {
+                            const platform = MethodChannel('com.example.op_flutter/printer');
+
+                            // 准备传给 Java 的参数
+                            final Map<String, dynamic> args = {
+                              "text": generateSummaryText(summary, user), // 打印内容
+                              "param": "" // 可根据需要传纸张或打印模式
+                            };
+
+                            final result = await platform.invokeMethod('printStr', args);
+
+                            // 弹出打印结果提示
+                            Get.snackbar('打印结果', result.toString(),
+                                snackPosition: SnackPosition.BOTTOM);
+                          } on PlatformException catch (e) {
+                            Get.snackbar('打印失败', e.message ?? '未知错误',
+                                snackPosition: SnackPosition.BOTTOM);
+                          }
                         },
                         child: const Text(
                           'Print',

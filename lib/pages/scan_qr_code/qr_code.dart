@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/network/tcp_socket_service.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/widgets/amount_input.dart';
@@ -42,8 +43,7 @@ class QRScanPageWithAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 这里直接调用你原来的 QRScanPage
-    return QRScanPage(); // 注意：原来的 QRScanPage 不需要改
+    return QRScanPage();
   }
 }
 
@@ -88,7 +88,7 @@ class _QRScanPageState extends State<QRScanPage>
     if (isScanCompleted) return;
     final barcode = capture.barcodes.first;
     final value = barcode.rawValue;
-
+    print('');
     if (value != null) {
       setState(() {
         isScanCompleted = true;
@@ -96,9 +96,9 @@ class _QRScanPageState extends State<QRScanPage>
       });
       cameraController.stop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("扫描结果：$value")),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("扫描结果：$value")),
+      // );
     }
   }
 

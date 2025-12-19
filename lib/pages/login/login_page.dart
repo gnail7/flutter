@@ -21,13 +21,11 @@ class _OceanPayLoginPageState extends State<OceanPayLoginPage> {
 
     controller = Get.find<LoginController>();
 
-    /// 监听 shouldAutoLogin
+    /// 监听 shouldAutoLogin（只触发一次）
     _autoLoginWorker = ever<bool>(
       controller.shouldAutoLogin,
           (should) {
         if (!should) return;
-
-        // 确保只触发一次
         controller.shouldAutoLogin.value = false;
       },
     );
@@ -35,7 +33,7 @@ class _OceanPayLoginPageState extends State<OceanPayLoginPage> {
 
   @override
   void dispose() {
-    _autoLoginWorker.dispose(); // ⭐ 非常重要，防止内存泄漏
+    _autoLoginWorker.dispose();
     super.dispose();
   }
 
@@ -51,38 +49,62 @@ class _OceanPayLoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Obx(() {
-        return LoadingWrapper(isLoading: controller.isLoading.value,child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.network(
-                "https://images.unsplash.com/photo-1508780709619-79562169bc64",
-                fit: BoxFit.cover,
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "OceanpayTest",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    _LoginCard(),
-                  ],
+        return LoadingWrapper(
+          isLoading: controller.isLoading.value,
+          child: Stack(
+            children: [
+              /// 背景图（本地）
+              Positioned.fill(
+                child: Image.asset(
+                  'images/login-bg.jpg',
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-          ],
-        ),);
-      })
+
+              /// 内容区域（关键：方案二）
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 40,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "OceanpayTest",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              _LoginCard(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
@@ -99,10 +121,14 @@ class _LoginCard extends GetView<LoginController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Welcome,",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const Text("Log in to continue",
-              style: TextStyle(fontSize: 14, color: Colors.grey)),
+          const Text(
+            "Welcome,",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const Text(
+            "Log in to continue",
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
           const SizedBox(height: 20),
 
           _buildInput(
@@ -138,9 +164,8 @@ class _LoginCard extends GetView<LoginController> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: canLogin
-                    ? () => controller.handleLogin()
-                    : null,
+                onPressed:
+                canLogin ? controller.handleLogin : null,
                 child: const Text(
                   "Log in",
                   style: TextStyle(fontSize: 16),

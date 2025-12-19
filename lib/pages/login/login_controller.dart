@@ -3,13 +3,14 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:op_flutter/models/users/user_model.dart';
+import 'package:op_flutter/network/tcp_socket_service.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/utils/app_utils.dart';
 import 'package:op_flutter/utils/common.dart';
+import 'package:op_flutter/utils/simple_prefs.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/toast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/network/login/api.dart';
 import 'package:op_flutter/network/login/login_request.dart';
@@ -82,6 +83,7 @@ class LoginController extends GetxController {
 
   /// 登录
   Future<void> handleLogin({bool useToken = false}) async {
+
     if ((username.value.isEmpty || password.value.isEmpty) && !useToken) {
       showCenterToast("请输入用户名和密码", type: ToastType.warning);
       return;
@@ -90,11 +92,11 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true; // 开始 loading
 
-      // 1️⃣ 获取 secureKey
+      // 获取 secureKey
       final ok = await _fetchSecureKey();
       if (!ok) return;
 
-      final prefs = await SharedPreferences.getInstance();
+      final prefs =  SimplePrefs.instance;
       dynamic localUser = prefs.getString('user_data');
       if (localUser != null) {
         localUser = User.fromJson(jsonDecode(localUser));
@@ -133,8 +135,11 @@ class LoginController extends GetxController {
 
       isLoggedIn.value = true;
       showCenterToast('登录成功');
-
-      Get.offAllNamed(AppRoutes.home);
+      if (data.role == 0) {
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        Get.offAllNamed(AppRoutes.system);
+      }
     } catch (e) {
       showCenterToast('$e', type: ToastType.error);
     } finally {
@@ -146,7 +151,7 @@ class LoginController extends GetxController {
 
   /// 读取本地用户信息
   Future<Map<String, dynamic>?> getLocalUser() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     final dataStr = prefs.getString('user_data');
     if (dataStr != null) {
       return jsonDecode(dataStr);
@@ -156,7 +161,7 @@ class LoginController extends GetxController {
 
   /// 自动登录或填充账号信息
   Future<void> autoLoginOrFill() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     final userDataStr = prefs.getString('user_data');
 
     if (userDataStr == null) return;
@@ -186,7 +191,7 @@ class LoginController extends GetxController {
     isLoggedIn.value = false;
     username.value = '';
     password.value = '';
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     await prefs.remove('user_data');
   }
 }

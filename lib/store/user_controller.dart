@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:op_flutter/models/users/user_model.dart';
 import 'package:op_flutter/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
+import 'package:op_flutter/utils/simple_prefs.dart';
 
 class UserController extends GetxController {
   static UserController get to => Get.find();
@@ -21,13 +23,15 @@ class UserController extends GetxController {
 
   /// 保存用户
   Future<void> saveToLocal(User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('user', jsonEncode(user.toJson()));
+    await SimplePrefs.instance.setString(
+      'user',
+      jsonEncode(user.toJson()),
+    );
   }
 
+  /// 读取用户
   Future<User?> loadFromLocal() async {
-    final prefs = await SharedPreferences.getInstance();
-    final json = prefs.getString('user');
+    final json = SimplePrefs.instance.getString('user');
     if (json == null) return null;
     return User.fromJson(jsonDecode(json));
   }
@@ -35,29 +39,25 @@ class UserController extends GetxController {
   /// 登出
   Future<bool> logout() async {
     try {
-      print('logout ${user.value}');
       if (user.value != null) {
-        // 清理本地缓存，保留 tid/uid
-        final prefs = await SharedPreferences.getInstance();
-        String? tid = prefs.getString('terminal');
-        String? uid = prefs.getString('uid');
+        // 备份 terminal / uid
+        final tid = SimplePrefs.instance.getString('terminal');
+        final uid = SimplePrefs.instance.getString('uid');
 
-        await prefs.clear();
+        await SimplePrefs.instance.clear();
 
         if (tid != null) {
-          prefs.setString('terminal', tid);
+          await SimplePrefs.instance.setString('terminal', tid);
         }
         if (uid != null) {
-          prefs.setString('uid', uid);
+          await SimplePrefs.instance.setString('uid', uid);
         }
 
         user.value = null;
         Get.offAllNamed(AppRoutes.login);
       }
-    } catch (e) {
-      // 可以记录错误或提示用户
-      final logger = Logger();
-      logger.e(e);
+    } catch (e, s) {
+      Logger().e('logout failed');
     }
     return true;
   }

@@ -147,7 +147,7 @@ class _AmountInputPOSState extends State<AmountInputPOS> {
                       }
                     },
                     child: Container(
-                      height: 80,
+                      height: 60,
                       alignment: Alignment.center,
                       margin: const EdgeInsets.all(1),
                       color: Colors.white,

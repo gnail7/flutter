@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:op_flutter/network/tcp_socket_service.dart';
 import 'package:op_flutter/store/user_controller.dart';
 
 enum ScanMode {
@@ -31,7 +32,7 @@ class HomeController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async{
     super.onInit();
     _updateModeFromUser();
   }

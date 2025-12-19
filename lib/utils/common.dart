@@ -1,37 +1,42 @@
-import 'dart:collection';
 
-import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/utils/simple_prefs.dart';
 import 'package:op_flutter/widgets/modal.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:get/get.dart';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
-import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+/// 保存最近登录时间
 Future<void> saveRecentLoginDate() async {
-  final prefs = await SharedPreferences.getInstance();
-  // 存储当前时间的 ISO8601 字符串
-  await prefs.setString('recent_login_date', DateTime.now().toIso8601String());
+  await SimplePrefs.instance.setString(
+    'recent_login_date',
+    DateTime.now().toIso8601String(),
+  );
 }
 
 class AuthGuard {
   static Future<AuthCheckResult> check(String routeName) async {
-    final prefs = await SharedPreferences.getInstance();
-    final dateStr = prefs.getString('recent_login_date');
-    final lastDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
+    final dateStr =
+    SimplePrefs.instance.getString('recent_login_date');
+
+    final lastDate =
+    dateStr != null ? DateTime.tryParse(dateStr) : null;
 
 
-    final userController = Get.find<UserController>();
     // 特殊路由无需校验
     if (routeName == '/settlement') {
       return AuthCheckResult.allow;
     }
 
-    // 如果上次登录时间超过 7 天
+    // 从未登录过，直接放行
+    if (lastDate == null) {
+      return AuthCheckResult.allow;
+    }
+
     final now = DateTime.now();
-    final bool over7Days = now.difference(lastDate!).inDays >= 7;
+    final bool over7Days = now.difference(lastDate).inDays >= 7;
+
     if (over7Days) {
       final ok = await showConfirmDialog(
         title: "Settlement",
@@ -39,11 +44,9 @@ class AuthGuard {
         "You have not settlement for 7 days,\nYou must settlement before using payment function.",
       );
 
-      if (ok == true) {
-        return AuthCheckResult.needVerify;
-      } else {
-        return AuthCheckResult.block;
-      }
+      return ok == true
+          ? AuthCheckResult.needVerify
+          : AuthCheckResult.block;
     }
 
     return AuthCheckResult.allow;
@@ -55,6 +58,7 @@ enum AuthCheckResult {
   block,
   needVerify,
 }
+
 
 String encryptInChunks(RSAPublicKey publicKey, String plainText) {
   final cipher = PKCS1Encoding(RSAEngine())
