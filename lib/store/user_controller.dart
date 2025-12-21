@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:op_flutter/models/users/user_model.dart';
 import 'package:op_flutter/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:op_flutter/utils/simple_prefs.dart';
 import 'dart:convert';
 
 class UserController extends GetxController {
@@ -21,12 +21,12 @@ class UserController extends GetxController {
 
   /// 保存用户
   Future<void> saveToLocal(User user) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     prefs.setString('user', jsonEncode(user.toJson()));
   }
 
   Future<User?> loadFromLocal() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     final json = prefs.getString('user');
     if (json == null) return null;
     return User.fromJson(jsonDecode(json));
@@ -38,7 +38,7 @@ class UserController extends GetxController {
       print('logout ${user.value}');
       if (user.value != null) {
         // 清理本地缓存，保留 tid/uid
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = SimplePrefs.instance;
         String? tid = prefs.getString('terminal');
         String? uid = prefs.getString('uid');
 

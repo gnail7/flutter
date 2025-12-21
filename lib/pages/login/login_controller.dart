@@ -6,10 +6,10 @@ import 'package:op_flutter/models/users/user_model.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/utils/app_utils.dart';
 import 'package:op_flutter/utils/common.dart';
+import 'package:op_flutter/utils/simple_prefs.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/toast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/network/login/api.dart';
 import 'package:op_flutter/network/login/login_request.dart';
@@ -59,8 +59,7 @@ class LoginController extends GetxController {
     final info = DeviceInfoPlugin();
     final android = await info.androidInfo;
     version.value = pkg.version;
-    // deviceId.value = android.id;
-    deviceId.value = '0820631392';
+    deviceId.value = android.id;
   }
 
   Future<bool> _fetchSecureKey() async {
@@ -94,7 +93,7 @@ class LoginController extends GetxController {
       final ok = await _fetchSecureKey();
       if (!ok) return;
 
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = SimplePrefs.instance;
       dynamic localUser = prefs.getString('user_data');
       if (localUser != null) {
         localUser = User.fromJson(jsonDecode(localUser));
@@ -146,7 +145,7 @@ class LoginController extends GetxController {
 
   /// 读取本地用户信息
   Future<Map<String, dynamic>?> getLocalUser() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     final dataStr = prefs.getString('user_data');
     if (dataStr != null) {
       return jsonDecode(dataStr);
@@ -156,7 +155,7 @@ class LoginController extends GetxController {
 
   /// 自动登录或填充账号信息
   Future<void> autoLoginOrFill() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     final userDataStr = prefs.getString('user_data');
 
     if (userDataStr == null) return;
@@ -186,7 +185,7 @@ class LoginController extends GetxController {
     isLoggedIn.value = false;
     username.value = '';
     password.value = '';
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SimplePrefs.instance;
     await prefs.remove('user_data');
   }
 }

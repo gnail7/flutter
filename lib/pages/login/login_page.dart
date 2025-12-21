@@ -55,9 +55,9 @@ class _OceanPayLoginView extends GetView<LoginController> {
         return LoadingWrapper(isLoading: controller.isLoading.value,child: Stack(
           children: [
             Positioned.fill(
-              child: Image.network(
-                "https://images.unsplash.com/photo-1508780709619-79562169bc64",
-                fit: BoxFit.cover,
+            child: Image.asset(
+              "images/login_bg.jpeg",
+              fit: BoxFit.cover,
               ),
             ),
             Center(

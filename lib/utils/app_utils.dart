@@ -64,7 +64,6 @@ String derToPem(String derBase64) {
   return pem.toString();
 }
 
-
 RSAPublicKey parsePemPublicKey(String pem) {
   final parser = RSAKeyParser();
 

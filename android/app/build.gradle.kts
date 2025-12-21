@@ -1,3 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        load(FileInputStream(file))
+    }
+}
+
+val minSdkVersionFromLocal: Int =
+    localProperties.getProperty("minSdkVersion", "21").toInt()
+
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -24,7 +38,7 @@ android {
         applicationId = "com.example.op_flutter"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = minSdkVersionFromLocal
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

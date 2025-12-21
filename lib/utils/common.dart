@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/utils/simple_prefs.dart';
 import 'package:op_flutter/widgets/modal.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -11,14 +11,14 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 Future<void> saveRecentLoginDate() async {
-  final prefs = await SharedPreferences.getInstance();
+  final prefs =  SimplePrefs.instance;
   // 存储当前时间的 ISO8601 字符串
   await prefs.setString('recent_login_date', DateTime.now().toIso8601String());
 }
 
 class AuthGuard {
   static Future<AuthCheckResult> check(String routeName) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =  SimplePrefs.instance;
     final dateStr = prefs.getString('recent_login_date');
     final lastDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
 
@@ -78,7 +78,6 @@ String encryptInChunks(RSAPublicKey publicKey, String plainText) {
   return base64Encode(encryptedBytes);
 }
 
-
 String sha256Hex(String input) {
   final bytes = utf8.encode(input);
   final digest = sha256.convert(bytes);
@@ -92,7 +91,6 @@ String createSign(Map<String, String> params, String secureKey) {
   buffer.write(secureKey);
   return sha256.convert(utf8.encode(buffer.toString())).toString().toUpperCase();
 }
-
 
 /// 当前时间
 String getRightNow() {

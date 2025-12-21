@@ -1,17 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
 
   @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  String version = '';
+  String deviceId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initVersionAndDevice();
+  }
+
+  Future<void> _initVersionAndDevice() async {
+    // 获取版本号
+    final packageInfo = await PackageInfo.fromPlatform();
+    // 获取设备ID（Android/iOS）
+    final deviceInfo = DeviceInfoPlugin();
+    String id = '';
+    try {
+      if (GetPlatform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        id = androidInfo.id;
+      } else if (GetPlatform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        id = iosInfo.identifierForVendor ?? '';
+      }
+    } catch (e) {
+      id = 'Unknown';
+    }
+
+    setState(() {
+      version = packageInfo.version;
+      deviceId = id;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // 模拟数据，可以替换成实际数据
-    const appName = "OceanpayTest";
-    const version = "2.6.0";
+    // 其他固定信息
+    const appName = "OceanPay";
     const updateTime = "2025-04-18 16:50:28";
-    const deviceId = "0820631392";
     const contact = "123";
     const about = "1234";
 
@@ -23,7 +60,7 @@ class AboutPage extends StatelessWidget {
         elevation: 0,
         foregroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back,color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
@@ -37,7 +74,7 @@ class AboutPage extends StatelessWidget {
               width: 80,
               height: 80,
               child: Image.asset(
-                'images/oceanpay_logo.png', // 替换为你的 logo
+                'images/qr_logo.png',
                 fit: BoxFit.contain,
               ),
             ),
@@ -54,9 +91,9 @@ class AboutPage extends StatelessWidget {
 
             const SizedBox(height: 4),
 
-            // 版本号
+            // 版本号（动态）
             Text(
-              "Version $version",
+              version.isEmpty ? "Loading..." : "Version $version",
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -67,11 +104,11 @@ class AboutPage extends StatelessWidget {
 
             // 信息列表
             _buildInfoRow("Update Time", updateTime),
-            _buildInfoRow("Device ID", deviceId),
+            _buildInfoRow("Device ID", deviceId.isEmpty ? "Loading..." : deviceId),
             _buildInfoRow("Contact", contact),
             _buildInfoRow("About Oceanpayment", about),
 
-            const SizedBox(height: 40), // 底部留空
+            const SizedBox(height: 40),
 
             // 版权信息
             const Center(
