@@ -4,9 +4,10 @@
     import io.flutter.embedding.android.FlutterActivity;
     import io.flutter.embedding.engine.FlutterEngine;
     import io.flutter.plugin.common.MethodChannel;
-
     import com.pax.dal.IPrinter;
     import com.pax.neptunelite.api.NeptuneLiteUser;
+    import android.graphics.Bitmap;
+    import android.graphics.BitmapFactory;
 
     public class MainActivity extends FlutterActivity {
         private static final String CHANNEL = "com.example.op_flutter/printer";
@@ -44,6 +45,11 @@
 
                         if (call.method.equals("printBitmap")) {
                             try {
+                                // 获取 DAL 实例
+                                NeptuneLiteUser neptuneLiteUser = NeptuneLiteUser.getInstance();
+                                com.pax.dal.IDAL dal = neptuneLiteUser.getDal(this);
+                                IPrinter printer = dal.getPrinter();
+                                printer.init();
                                 byte[] bytes = call.argument("bytes");
                                 if (bytes == null || bytes.length == 0) {
                                     result.error("INVALID_DATA", "Bitmap bytes is null", null);

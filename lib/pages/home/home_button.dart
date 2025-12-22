@@ -53,12 +53,12 @@ class HomeButton extends StatelessWidget {
 
         const platform = MethodChannel('com.example.op_flutter/printer');
 
-        await platform.invokeMethod('printStr', {
-          'text': manager.format('printer', receipt)
-        });
+        // await platform.invokeMethod('printStr', {
+        //   'text': manager.format('printer', receipt)
+        // });
         // 2️⃣ 打印二维码（用 paymentId）
         final qrBytes = await generateQrImage(receipt.paymentId);
-
+        print('qrbytes ${qrBytes}');
         await platform.invokeMethod('printBitmap', {
           'bytes': qrBytes,
         });
