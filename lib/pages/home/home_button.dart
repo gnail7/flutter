@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/utils/common.dart';
+import 'package:op_flutter/utils/receipt_printer.dart';
 
 typedef HomeButtonTapCallback = void Function(String name);
 
@@ -30,6 +32,29 @@ class HomeButton extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
+        final receipt = SaleReceipt(
+          merchantName: 'My Shop',
+          paymentMethod: 'Credit Card',
+          mid: '123456',
+          tid: '654321',
+          batchNo: '001',
+          billNo: '1001',
+          amount: '50.00',
+          currency: 'USD',
+          paymentId: 'ABC123',
+          dateTime: '2025-12-21 16:30',
+          barcode: '|| ||| | |||',
+        );
+
+        final manager = ReceiptManager();
+        manager.registerFormatter('printer', PrinterFriendlyFormatter());
+
+        const platform = MethodChannel('com.example.op_flutter/printer');
+
+        await platform.invokeMethod('printStr', {
+          'text': manager.format('printer', receipt),
+          'param': null,
+        });
         final result = await AuthGuard.check(name);
         /// 无需settlement
         if (result == AuthCheckResult.allow) {

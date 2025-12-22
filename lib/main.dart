@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'pos demo',
       theme: AppTheme.defaultTheme,
-      initialRoute: AppRoutes.login, // 默认启动页
+      initialRoute: AppRoutes.home, // 默认启动页
       getPages: AppPages.routes, // 路由表
     );
   }

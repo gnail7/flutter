@@ -1,20 +1,18 @@
   // lib/routes/app_pages.dart
 import 'package:get/get.dart';
-import 'package:op_flutter/pages/about_us/about_us.dart';
 import 'package:op_flutter/pages/failed_trans/fail_trans_page.dart';
 import 'package:op_flutter/pages/home/home_page.dart';
 import 'package:op_flutter/pages/login/login_binding.dart';
 import 'package:op_flutter/pages/qr_code/qr_code.dart';
-import 'package:op_flutter/pages/query/controller/search_page_controller.dart';
 import 'package:op_flutter/pages/query/query_page.dart';
 import 'package:op_flutter/pages/query/search_result_page.dart';
 import 'package:op_flutter/pages/query/summary_page.dart';
 import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
+import 'package:op_flutter/pages/system_info/about_us/about_us.dart';
 import 'package:op_flutter/pages/system_info/reset_password/reset_password.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
 import 'package:op_flutter/pages/void/void_page.dart';
-import 'package:op_flutter/widgets/password_verify.dart';
 import '../pages/login/login_page.dart';
 
   /// 所有路由路径定义

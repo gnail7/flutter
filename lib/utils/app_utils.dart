@@ -17,7 +17,7 @@ RSAPublicKey loadPublicKeyByStr(String publicKeyStr) {
   // 3. 取出 BIT STRING（真正的公钥结构）
   final publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
-  final publicKeyAsn = ASN1Parser(publicKeyBitString.contentBytes()!);
+  final publicKeyAsn = ASN1Parser(publicKeyBitString.contentBytes());
   final publicKeySeq = publicKeyAsn.nextObject() as ASN1Sequence;
 
   // 4. 解析 modulus(N) 和 exponent(E)
@@ -63,7 +63,6 @@ String derToPem(String derBase64) {
   pem.writeln('-----END PUBLIC KEY-----');
   return pem.toString();
 }
-
 
 RSAPublicKey parsePemPublicKey(String pem) {
   final parser = RSAKeyParser();
