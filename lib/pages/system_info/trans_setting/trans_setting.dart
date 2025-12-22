@@ -36,6 +36,9 @@ class _TransSettingsPageState extends State<TransSettingsPage> {
       title: Text(title),
       value: value,
       onChanged: onChanged,
+      activeThumbColor: Colors.green,
+      activeTrackColor: Colors.green.withOpacity(0.3),
+      tileColor:  Colors.green,
     );
   }
 
@@ -59,11 +62,11 @@ class _TransSettingsPageState extends State<TransSettingsPage> {
                       (v) => setState(() => printVoid = v)),
               _buildSwitch("Print receipt after Settlement?", printSettlement,
                       (v) => setState(() => printSettlement = v)),
-              _buildSwitch("Input password when enter into Settlement page?", passwordSettlement,
-                      (v) => setState(() => passwordSettlement = v)),
-              _buildSwitch("Input password when enter into Void page?", passwordVoid,
-                      (v) => setState(() => passwordVoid = v)),
             ],
+            _buildSwitch("Input password when enter into Settlement page?", passwordSettlement,
+                    (v) => setState(() => passwordSettlement = v)),
+            _buildSwitch("Input password when enter into Void page?", passwordVoid,
+                    (v) => setState(() => passwordVoid = v)),
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -82,6 +85,7 @@ class _TransSettingsPageState extends State<TransSettingsPage> {
                       "passwordSettlement": passwordSettlement,
                       "passwordVoid": passwordVoid,
                     };
+                    print("Saved settings: $settings");
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Settings saved")),
                     );
