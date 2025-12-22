@@ -152,7 +152,7 @@ class _SearchBillPageState extends State<SearchBillPage> {
                               color: Colors.grey.shade600,
                               onPressed: () async {
                                 final result = await Get.to<String>(
-                                      () => const QRScanTemplatePage(),
+                                      () => QRScanTemplatePage(onScanCompleted: (String result) {  },),
                                 );
 
                                 if (result != null && result.isNotEmpty) {

@@ -114,3 +114,42 @@ class QueryPageController extends GetxController {
     Get.toNamed(AppRoutes.querySummaryPage);
   }
 }
+
+int parseCount(dynamic data) {
+  if (data == null) return 0;
+
+  if (data is int) return data;
+
+  if (data is String) {
+    try {
+      final map = data.startsWith('{') ? Map<String, dynamic>.from(jsonDecode(data)) : null;
+      if (map != null && map['count'] != null) {
+        return map['count'] as int;
+      }
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  return 0;
+}
+
+double parseAmount(dynamic data) {
+  if (data == null) return 0.0;
+
+  if (data is double) return data;
+
+  if (data is String) {
+    try {
+      final map = data.startsWith('{') ? Map<String, dynamic>.from(jsonDecode(data)) : null;
+      if (map != null && map['amount'] != null) {
+        return (map['amount'] as num).toDouble();
+      }
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  return 0.0;
+}
+

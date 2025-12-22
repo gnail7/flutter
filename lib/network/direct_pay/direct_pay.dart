@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:op_flutter/models/api/api.dart';
 import 'package:op_flutter/network/dio_manager.dart';
 import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/utils/sign_helper_epay.dart';
 
 /// DirectPay 交易接口封装
@@ -45,12 +47,24 @@ class DirectPayApi {
     // 生成签名
     helper.createSign();
     final requestMap = helper.getMap();
+    final String signString = requestMap['account']! +
+        requestMap['terminal']! +
+        requestMap['order_number']! +
+        requestMap['order_currency']! +
+        requestMap['order_amount']! +
+        requestMap['billing_firstName']! +
+        requestMap['billing_lastName']! +
+        requestMap['billing_email']! +
+        user.secureCode;
 
+    final signValue = sha256Hex(signString);
+    requestMap['signValue'] = signValue; // 加入请求参数
     // 调用 DirectPay 接口（可传完整 URL）
     return DioManager.request<ApiResponse<Map<String, dynamic>>>(
       'http://192.168.10.39:8680/PaymentGateway/gateway/directservice/pay',
       method: 'POST',
       params: requestMap,
+      contentType: Headers.formUrlEncodedContentType,
       decoder: (json) => ApiResponse<Map<String, dynamic>>.fromJson(
         json,
             (data) => Map<String, dynamic>.from(data),
@@ -73,5 +87,43 @@ class DirectPayApi {
       }
     }
     return null;
+  }
+
+
+  /// 交易撤销（Void）
+  static Future<dynamic> voidTransaction({
+    required String paymentId,
+    required String orderNumber,
+  }) async {
+    final loginData = UserController.to.user.value!;
+
+    final account = loginData.account.toString();
+    final terminal = loginData.terminal.toString();
+    const paymentAuthType = '3'; // 固定传参 - 见源项目DirectService.java
+    final secureCode = loginData.secureCode;
+
+    // 生成 signValue（SHA256）
+    final signString = '$account$terminal$paymentId$orderNumber$paymentAuthType$secureCode';
+    final signValue = sha256Hex(signString);
+
+    final Map<String, String> requestMap = {
+      'account': account,
+      'terminal': terminal,
+      'payment_id': paymentId,
+      'order_number': orderNumber,
+      'payment_authType': paymentAuthType,
+      'signValue': signValue,
+    };
+
+    // 测试环境接口路径
+    const path = 'http://192.168.10.39:8680/PaymentGateway/gateway/service/auth';
+
+    return DioManager.request(
+      path,
+      method: 'POST',
+      params: requestMap,
+      contentType: Headers.formUrlEncodedContentType,
+      decoder: (json) => json,
+    );
   }
 }

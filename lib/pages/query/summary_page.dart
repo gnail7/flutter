@@ -5,8 +5,10 @@ import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/utils/print_helper.dart';
+import 'package:op_flutter/utils/receipt_printer.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
+import 'package:op_flutter/widgets/toast.dart';
 
 class SummaryPage extends StatelessWidget {
   SummaryPage({super.key});
@@ -24,7 +26,6 @@ class SummaryPage extends StatelessWidget {
     return Obx(() {
       final summary = controller.batchSummary.value;
       final user = userController.user.value;
-
       return LoadingWrapper(
         isLoading: controller.isLoading.value,
         child: Scaffold(
@@ -48,22 +49,21 @@ class SummaryPage extends StatelessWidget {
                   children: [
                     _buildTableHeader(),
                     const Divider(),
-
                     /// 交易统计
                     _buildRow(
                       'Sale',
-                      summary.saleStats.count.toString(),
-                      summary.saleStats.amount.toStringAsFixed(2),
+                      "${parseCount(summary.totalSale)}",
+                      "${parseAmount(summary.totalSale)}",
                     ),
                     _buildRow(
                       'Void',
-                      summary.voidStats.count.toString(),
-                      summary.voidStats.amount.toStringAsFixed(2),
+                      "${parseCount(summary.totalVoid)}",
+                      "${parseAmount(summary.totalVoid)}",
                     ),
                     _buildRow(
                       'Fail',
-                      summary.failedStats.count.toString(),
-                      summary.failedStats.amount.toStringAsFixed(2),
+                      "${parseCount(summary.totalFailed)}",
+                      "${parseAmount(summary.totalFailed)}",
                     ),
 
                     const SizedBox(height: 12),
@@ -71,7 +71,13 @@ class SummaryPage extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     /// 基础信息
-                    _buildKV('MID',  '-'),
+                    /// 基础信息
+                    _buildKV(
+                      'MID',
+                      user?.terminal != null && user!.terminal.toString().length >= 6
+                          ? user.terminal.toString().substring(0, 6)
+                          : '-',
+                    ),
                     _buildKV('TID', user?.terminal.toString()  ?? '-'),
                     _buildKV('Batch No.', summary.batchNo),
                     _buildKV('Currency', user?.currency ?? '-'),
@@ -90,24 +96,32 @@ class SummaryPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        onPressed: () async{
+                        onPressed: () async {
                           try {
+                            final summaryReceipt = SummaryReceipt(
+                              merchantName: user?.merName ?? '-',
+                              paymentMethod: 'Alipay,Wechat Pay',
+                              mid: user?.terminal.toString().substring(0,6) ?? '-',
+                              tid: user?.terminal.toString() ?? '-',
+                              batchNo: summary.batchNo,
+                              saleCount: parseCount(summary.totalSale),
+                              saleAmount: parseAmount(summary.totalSale),
+                              voidCount: parseCount(summary.totalVoid),
+                              voidAmount: parseAmount(summary.totalVoid),
+                              failCount: parseCount(summary.totalFailed),
+                              failAmount: parseAmount(summary.totalFailed),
+                              currency: user?.currency ?? '-',
+                              dateTime: getRightNow(),
+                            );
+                            final receiptManager = ReceiptManager();
+                            final printText = receiptManager.format<SummaryReceipt>('summary', summaryReceipt);
+
                             const platform = MethodChannel('com.example.op_flutter/printer');
+                            final result = await platform.invokeMethod('printStr', {"text": printText});
 
-                            // 准备传给 Java 的参数
-                            final Map<String, dynamic> args = {
-                              "text": generateSummaryText(summary, user), // 打印内容
-                              "param": "" // 可根据需要传纸张或打印模式
-                            };
-
-                            final result = await platform.invokeMethod('printStr', args);
-
-                            // 弹出打印结果提示
-                            Get.snackbar('打印结果', result.toString(),
-                                snackPosition: SnackPosition.BOTTOM);
+                            Get.snackbar('打印结果', result.toString(), snackPosition: SnackPosition.BOTTOM);
                           } on PlatformException catch (e) {
-                            Get.snackbar('打印失败', e.message ?? '未知错误',
-                                snackPosition: SnackPosition.BOTTOM);
+                            showCenterToast('打印失败 ${e.message ?? '未知错误'}', type: ToastType.error);
                           }
                         },
                         child: const Text(

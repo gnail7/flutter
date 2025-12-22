@@ -12,10 +12,9 @@ class BatchSummary {
       failedStats: Stats.fromString(json['failedStats']),
       transDetails: _parseTransDetails(json['transDetails']),
 
-      // 新增字段，兼容字符串和数字
-      totalSale: _parseInt(json['totalSale']),
-      totalVoid: _parseInt(json['totalVoid']),
-      totalFailed: _parseInt(json['totalFailed']),
+      totalSale: (json['totalSale']),
+      totalVoid: (json['totalVoid']),
+      totalFailed: (json['totalFailed']),
     );
   }
 
@@ -28,9 +27,9 @@ class BatchSummary {
     Stats? voidStats,
     Stats? failedStats,
     List<PaymentRecord>? transDetails,
-    this.totalSale = 0,
-    this.totalVoid = 0,
-    this.totalFailed = 0,
+    this.totalSale,
+    this.totalVoid,
+    this.totalFailed,
   })  : saleStats = saleStats ?? Stats(),
         voidStats = voidStats ?? Stats(),
         failedStats = failedStats ?? Stats(),
@@ -47,9 +46,9 @@ class BatchSummary {
   final List<PaymentRecord> transDetails;
 
   // 新增字段
-  final int totalSale;
-  final int totalVoid;
-  final int totalFailed;
+  final String? totalSale;
+  final String? totalVoid;
+  final String? totalFailed;
 
   Map<String, dynamic> toJson() => {
     'terminal': terminal,

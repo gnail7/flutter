@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:op_flutter/network/direct_pay/direct_pay.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/models/query/payment_record.dart';
 import 'package:op_flutter/network/query/api.dart';
 import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/toast.dart';
+import 'package:get/get.dart';
 
-class PaymentDetailPage extends StatefulWidget {
-  const PaymentDetailPage({
-    this.payment,
-    this.orderNo,
+import '../../models/query/void_resp.dart';
+
+class VoidDetailPage extends StatefulWidget {
+  const VoidDetailPage({
+    required this.orderNo,
     super.key,
   });
 
-  final PaymentRecord? payment;
-  final String? orderNo;
+  final String orderNo;
 
   @override
-  State<PaymentDetailPage> createState() => _PaymentDetailPageState();
+  State<VoidDetailPage> createState() => _VoidDetailPageState();
 }
 
-class _PaymentDetailPageState extends State<PaymentDetailPage> {
+class _VoidDetailPageState extends State<VoidDetailPage> {
   PaymentRecord? _payment;
   bool _loading = false;
   String? _error;
@@ -27,16 +31,7 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
   @override
   void initState() {
     super.initState();
-
-    if (widget.payment != null) {
-      // ✅ 直接使用传入数据
-      _payment = widget.payment;
-    } else if (widget.orderNo != null) {
-      // ✅ 根据 orderNo 请求
-      _fetchByOrderNo(widget.orderNo!);
-    } else {
-      _error = 'No payment data';
-    }
+    _fetchByOrderNo(widget.orderNo);
   }
 
   Future<void> _fetchByOrderNo(String orderNo) async {
@@ -70,19 +65,28 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.bgGrey,
-      appBar: AppBar(
-        title: const Text('Payment Detail'),
-        backgroundColor: AppColor.primaryColor,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _buildBody(),
+    return LoadingWrapper(
+      isLoading: _loading,
+      child: Scaffold(
+        backgroundColor: AppColor.bgGrey,
+        appBar: AppBar(
+          title: const Text('Void Detail'),
+          backgroundColor: AppColor.primaryColor,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.print),
+              onPressed: _payment == null ? null : () => _print(_payment!),
+            ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: _buildBody(),
+        ),
       ),
     );
-  }
+}
 
   Widget _buildBody() {
     if (_loading) {
@@ -97,20 +101,60 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
       return const SizedBox();
     }
 
-    return _PaymentDetailCard(payment: _payment!);
+    return _VoidDetailCard(
+      payment: _payment!,
+      onConfirm: _confirmVoid,
+    );
+  }
+
+  void _confirmVoid() async {
+    if (_payment == null) return;
+
+    setState(() => _loading = true);
+
+    try {
+      final xmlString = await DirectPayApi.voidTransaction(
+        paymentId: _payment!.paymentId,
+        orderNumber: _payment!.orderNo,
+      );
+
+      final resp = VoidResp.fromXml(xmlString);
+
+      if (resp.isVoidSuccess) {
+        showCenterToast(resp.paymentDetails, type: ToastType.success);
+        await Future.delayed(const Duration(milliseconds: 1000));
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        showCenterToast(resp.paymentDetails, type: ToastType.error);
+      }
+    } catch (e) {
+      showCenterToast('Void failed: $e', type: ToastType.error);
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  void _print(PaymentRecord payment) {
+    // TODO: 调 void receipt 打印
+    debugPrint('Print void receipt: ${payment.paymentId}');
   }
 }
 
-class _PaymentDetailCard extends StatelessWidget {
-  const _PaymentDetailCard({required this.payment});
+
+class _VoidDetailCard extends StatelessWidget {
+  const _VoidDetailCard({
+    required this.payment,
+    required this.onConfirm,
+  });
 
   final PaymentRecord payment;
+  final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {
     final typeText = switch (payment.transType) {
-      1 => 'Sale',
       2 => 'Void',
+      1 => 'Sale',
       _ => 'Failed',
     };
 
@@ -131,6 +175,8 @@ class _PaymentDetailCard extends StatelessWidget {
             _kv('Payment ID', payment.paymentId),
             _kv('Status', typeText),
             const Spacer(),
+
+            /// ✅ 底部 Confirm 按钮
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -138,8 +184,11 @@ class _PaymentDetailCard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.primaryColor,
                 ),
-                onPressed: () => _print(payment),
-                child: const Text('Print', style: TextStyle(color: Colors.white)),
+                onPressed: onConfirm,
+                child: const Text(
+                  'Confirm',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -161,10 +210,4 @@ class _PaymentDetailCard extends StatelessWidget {
       ),
     );
   }
-
-  void _print(PaymentRecord payment) {
-    // 🔥 调你已有的 小票 + 条形码打印逻辑
-    debugPrint('Print payment: ${payment.paymentId}');
-  }
 }
-

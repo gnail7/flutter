@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QRScanTemplatePage extends StatefulWidget {
-  const QRScanTemplatePage({super.key});
+
+  const QRScanTemplatePage({required this.onScanCompleted, super.key});
+  /// 扫码完成后的回调
+  final void Function(String result) onScanCompleted;
 
   @override
   State<QRScanTemplatePage> createState() => _QRScanPageState();
@@ -10,12 +13,14 @@ class QRScanTemplatePage extends StatefulWidget {
 
 class _QRScanPageState extends State<QRScanTemplatePage>
     with SingleTickerProviderStateMixin {
-  final MobileScannerController cameraController = MobileScannerController();
+  final MobileScannerController _cameraController = MobileScannerController();
 
-  bool isScanCompleted = false;
+  bool _isScanCompleted = false;
 
   late final AnimationController _animationController;
   late final Animation<double> _animation;
+
+  static const double _scanSize = 250;
 
   @override
   void initState() {
@@ -29,28 +34,26 @@ class _QRScanPageState extends State<QRScanTemplatePage>
 
   @override
   void dispose() {
-    cameraController.dispose();
+    _cameraController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
   void _handleScan(BarcodeCapture capture) {
-    if (isScanCompleted) return;
+    if (_isScanCompleted) return;
 
     final value = capture.barcodes.first.rawValue;
     if (value != null && value.isNotEmpty) {
-      isScanCompleted = true;
-      cameraController.stop();
+      _isScanCompleted = true;
+      _cameraController.stop();
 
-      /// 返回扫码结果
-      Navigator.of(context).pop(value);
+      // 调用回调函数，把结果传给调用方
+      widget.onScanCompleted(value);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const double scanSize = 250;
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -60,61 +63,32 @@ class _QRScanPageState extends State<QRScanTemplatePage>
       ),
       body: Stack(
         children: [
-          /// 摄像头
           MobileScanner(
-            controller: cameraController,
+            controller: _cameraController,
             onDetect: _handleScan,
           ),
-
-          /// 遮罩层
           LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
               final height = constraints.maxHeight;
 
-              final left = (width - scanSize) / 2;
-              final top = (height - scanSize) / 2;
+              final left = (width - _scanSize) / 2;
+              final top = (height - _scanSize) / 2;
 
               return Stack(
                 children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: top,
-                    child: Container(color: Colors.black54),
-                  ),
-                  Positioned(
-                    top: top + scanSize,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(color: Colors.black54),
-                  ),
-                  Positioned(
-                    top: top,
-                    left: 0,
-                    width: left,
-                    height: scanSize,
-                    child: Container(color: Colors.black54),
-                  ),
-                  Positioned(
-                    top: top,
-                    right: 0,
-                    width: left,
-                    height: scanSize,
-                    child: Container(color: Colors.black54),
-                  ),
+                  _buildMask(0, 0, width, top),
+                  _buildMask(0, top + _scanSize, width, height - top - _scanSize),
+                  _buildMask(0, top, left, _scanSize),
+                  _buildMask(left + _scanSize, top, left, _scanSize),
                 ],
               );
             },
           ),
-
-          /// 扫码框
           Center(
             child: SizedBox(
-              width: scanSize,
-              height: scanSize,
+              width: _scanSize,
+              height: _scanSize,
               child: Stack(
                 children: [
                   Container(
@@ -123,19 +97,15 @@ class _QRScanPageState extends State<QRScanTemplatePage>
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-
-                  /// 四角
-                  _corner(left: 0, top: 0),
-                  _corner(right: 0, top: 0),
-                  _corner(left: 0, bottom: 0),
-                  _corner(right: 0, bottom: 0),
-
-                  /// 扫描线
+                  _corner(Alignment.topLeft),
+                  _corner(Alignment.topRight),
+                  _corner(Alignment.bottomLeft),
+                  _corner(Alignment.bottomRight),
                   AnimatedBuilder(
                     animation: _animation,
                     builder: (_, __) {
                       return Positioned(
-                        top: scanSize * _animation.value,
+                        top: _scanSize * _animation.value,
                         left: 0,
                         right: 0,
                         child: Container(
@@ -154,12 +124,19 @@ class _QRScanPageState extends State<QRScanTemplatePage>
     );
   }
 
-  Widget _corner({double? left, double? right, double? top, double? bottom}) {
+  Widget _buildMask(double left, double top, double width, double height) {
     return Positioned(
       left: left,
-      right: right,
       top: top,
-      bottom: bottom,
+      width: width,
+      height: height,
+      child: Container(color: Colors.black54),
+    );
+  }
+
+  Widget _corner(Alignment alignment) {
+    return Align(
+      alignment: alignment,
       child: Container(
         width: 30,
         height: 30,

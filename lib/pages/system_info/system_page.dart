@@ -17,8 +17,10 @@ class SystemInfoPage extends StatelessWidget {
         title: "Settings",
         icon: Icons.settings,
         color: Colors.blue,
-        allowedRoles: ["admin"],
-        onTap: () {},
+        allowedRoles: ["admin", "operator"],
+        onTap: () {
+          Get.toNamed(AppRoutes.setting);
+        },
       ),
       _SystemMenu(
         title: "Reset Password",

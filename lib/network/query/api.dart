@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:op_flutter/models/api/api.dart';
 import 'package:op_flutter/models/query/payment_record.dart';
 import 'package:op_flutter/network/dio_manager.dart';
@@ -71,4 +69,33 @@ class QueryApi {
       ),
     );
   }
+
+  /// 查询通道支持的支付类型
+  static Future<ApiResponse<String>> fetchPayType({
+    required int terminal,
+    required String payParam, // Alipay / WeChatPay
+    required String token,
+  }) async {
+    final helper = SignHelperEPay(UserController.to.user.value!.secureCode);
+
+    // 必传字段
+    helper.addKeyValue("terminal", terminal.toString());
+    helper.addKeyValue("payParam", payParam);
+    helper.addKeyValue("token", token);
+
+    // 生成签名
+    helper.createSign();
+    final requestMap = helper.getMap();
+
+    return DioManager.request<ApiResponse<String>>(
+      '/service/pay/type',
+      method: 'GET',
+      params: requestMap,
+      decoder: (json) => ApiResponse<String>.fromJson(
+        json,
+            (data) => data['payType'] as String, // payType 字段解析
+      ),
+    );
+  }
+
 }

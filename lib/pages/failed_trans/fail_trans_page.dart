@@ -27,7 +27,7 @@ class FailedTransactionPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: AppColor.primaryColor,
             title: const Text(
-              '失败交易',
+              'Failed Trans',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,

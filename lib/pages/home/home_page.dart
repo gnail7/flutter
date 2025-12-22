@@ -83,6 +83,7 @@ class HomePage extends StatelessWidget {
               flex: 4,
               child: GridView.count(
                 crossAxisCount: 2,
+                childAspectRatio: 1.2,
                 children: [
                   if (btns.contains(HomeButtonType.transaction))
                     HomeButton(

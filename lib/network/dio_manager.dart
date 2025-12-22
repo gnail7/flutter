@@ -6,8 +6,8 @@ import 'package:op_flutter/widgets/toast.dart';
 class DioManager {
   static final BaseOptions baseOptions = BaseOptions(
     baseUrl: 'https://192.168.10.39:4443/epay',
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 5),
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
     headers: {
       'User-Agent': 'Dio',
       'content-type': 'application/json;charset=UTF-8',
@@ -73,10 +73,10 @@ class DioManager {
   /// 统一请求，强类型解析
   static Future<T> request<T>(
       String url, {
-        required T Function(Map<String, dynamic>) decoder,
+        required T Function(dynamic) decoder,
         dynamic params,
         String method = "POST",
-        String? contentType, // 新增
+        String? contentType,
       }) async {
     try {
       dynamic data;
@@ -86,11 +86,10 @@ class DioManager {
         options.contentType = contentType;
       }
 
-      if (contentType != null) {
-        options.contentType = contentType;
-      } else if (method.toUpperCase() == "POST") {
-        // 如果是 POST 且没有 contentType，自动转换成 FormData
-        if (params is Map<String, dynamic>) {
+      if (method.toUpperCase() == "POST") {
+        if (contentType == Headers.formUrlEncodedContentType) {
+          data = params;
+        } else if (params is Map<String, dynamic>) {
           data = FormData.fromMap(params);
         } else {
           data = params;
@@ -99,20 +98,24 @@ class DioManager {
         data = params;
       }
 
-
-      Response response = await dio.request(
+      final response = await dio.request(
         url,
         data: data,
         queryParameters: method.toUpperCase() == "GET" ? params : null,
         options: options,
       );
 
+      // 如果 response 本身就是 String，直接返回
+      if (response is String) {
+        return decoder(response);
+      }
+
+      // 否则取 response.data
       final result = response.data;
-      return decoder(result as Map<String, dynamic>);
+
+      return decoder(result);
     } catch (e) {
       return Future.error(e);
     }
   }
-
-
 }

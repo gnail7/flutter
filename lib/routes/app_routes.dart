@@ -11,7 +11,9 @@ import 'package:op_flutter/pages/scan_qr_code/qr_code.dart';
 import 'package:op_flutter/pages/settlement/settlement_page.dart';
 import 'package:op_flutter/pages/system_info/about_us/about_us.dart';
 import 'package:op_flutter/pages/system_info/reset_password/reset_password.dart';
+import 'package:op_flutter/pages/system_info/settings.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
+import 'package:op_flutter/pages/void/void_detail.dart';
 import 'package:op_flutter/pages/void/void_page.dart';
 import '../pages/login/login_page.dart';
 
@@ -44,6 +46,8 @@ import '../pages/login/login_page.dart';
     static const userManagement = '/user-management';
     /// 搜索结果页面
     static const searchResultPage = '/searchResult';
+
+    static const setting = '/setting';
   }
 
   /// 所有路由页面配置
@@ -71,6 +75,7 @@ import '../pages/login/login_page.dart';
         name: AppRoutes.searchResultPage,
         page: () => SearchResultPage(),
       ),
-      GetPage(name: AppRoutes.failTrans, page: () => FailedTransactionPage())
+      GetPage(name: AppRoutes.failTrans, page: () => FailedTransactionPage()),
+      GetPage(name: AppRoutes.setting, page: () => const SettingPage())
     ];
   }

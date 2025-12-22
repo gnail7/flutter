@@ -57,8 +57,9 @@ class _OceanPayLoginView extends GetView<LoginController> {
             children: [
               /// 背景图（本地）
               Positioned.fill(
+
                 child: Image.asset(
-                  'images/login-bg.jpg',
+                  'images/login_bg.jpeg',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -165,7 +166,12 @@ class _LoginCard extends GetView<LoginController> {
                   ),
                 ),
                 onPressed:
-                canLogin ? controller.handleLogin : null,
+                canLogin ? () {
+                  // 收起键盘
+                  FocusScope.of(context).unfocus();
+                  // 调用登录方法
+                  controller.handleLogin();
+                } : null,
                 child: const Text(
                   "Log in",
                   style: TextStyle(fontSize: 16),

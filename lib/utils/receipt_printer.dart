@@ -1,16 +1,5 @@
-// 小票数据模型
+// ===== 数据模型 =====
 class SaleReceipt {
-  final String merchantName;
-  final String paymentMethod;
-  final String mid;
-  final String tid;
-  final String batchNo;
-  final String billNo;
-  final String amount;
-  final String currency;
-  final String paymentId;
-  final String dateTime;
-  final String barcode;
 
   SaleReceipt({
     required this.merchantName,
@@ -25,41 +14,77 @@ class SaleReceipt {
     required this.dateTime,
     required this.barcode,
   });
+  final String merchantName;
+  final String paymentMethod;
+  final String mid;
+  final String tid;
+  final String batchNo;
+  final String billNo;
+  final String amount;
+  final String currency;
+  final String paymentId;
+  final String dateTime;
+  final String barcode;
 }
 
-// 小票格式抽象类
-abstract class ReceiptFormatter {
-  String format(SaleReceipt receipt);
+class SummaryReceipt {
+
+  SummaryReceipt({
+    required this.merchantName,
+    required this.paymentMethod,
+    required this.mid,
+    required this.tid,
+    required this.batchNo,
+    required this.saleCount,
+    required this.saleAmount,
+    required this.voidCount,
+    required this.voidAmount,
+    required this.failCount,
+    required this.failAmount,
+    required this.currency,
+    required this.dateTime,
+  });
+  final String merchantName;
+  final String paymentMethod;
+  final String mid;
+  final String tid;
+  final String batchNo;
+  final int saleCount;
+  final double saleAmount;
+  final int voidCount;
+  final double voidAmount;
+  final int failCount;
+  final double failAmount;
+  final String currency;
+  final String dateTime;
 }
 
-// 打印机友好格式
-class PrinterFriendlyFormatter extends ReceiptFormatter {
+// ===== 抽象小票格式器 =====
+abstract class ReceiptFormatter<T> {
+  String format(T receipt);
+}
+
+// ===== Sale 小票 =====
+class PrinterFriendlySaleFormatter extends ReceiptFormatter<SaleReceipt> {
+
+  PrinterFriendlySaleFormatter({this.lineWidth = 32, this.bottomPadding = 3});
   final int lineWidth;
-  final int bottomPadding; // 底部空行数
-
-  PrinterFriendlyFormatter({this.lineWidth = 32, this.bottomPadding = 3});
+  final int bottomPadding;
 
   @override
   String format(SaleReceipt receipt) {
     final sb = StringBuffer();
 
-    // 左右两端对齐的行
     void appendLine(String label, String value) {
       final availableSpace = lineWidth - label.length;
-      String displayValue;
-      if (value.length > availableSpace) {
-        displayValue = value.substring(0, availableSpace); // 超长截断
-      } else {
-        displayValue = value.padLeft(availableSpace); // 右侧对齐
-      }
+      String displayValue = value.length > availableSpace
+          ? value.substring(0, availableSpace)
+          : value.padLeft(availableSpace);
       sb.writeln('$label$displayValue');
     }
 
-    void appendSeparator() {
-      sb.writeln('-' * lineWidth);
-    }
+    void appendSeparator() => sb.writeln('-' * lineWidth);
 
-    // 标题居中
     sb.writeln('SALE'.padLeft((lineWidth + 4) ~/ 2));
     sb.writeln(receipt.merchantName.padLeft((lineWidth + receipt.merchantName.length) ~/ 2));
     appendSeparator();
@@ -75,31 +100,68 @@ class PrinterFriendlyFormatter extends ReceiptFormatter {
     appendLine('Date Time', receipt.dateTime);
 
     appendSeparator();
-    // 条码居中
     sb.writeln(receipt.barcode.padLeft((lineWidth + receipt.barcode.length) ~/ 2));
 
-    // 底部留白
-    for (int i = 0; i < bottomPadding; i++) {
-      sb.writeln();
-    }
+    for (int i = 0; i < bottomPadding; i++) sb.writeln();
 
     return sb.toString();
   }
 }
 
-// 管理器，统一管理不同小票格式
-class ReceiptManager {
-  final Map<String, ReceiptFormatter> _formatters = {};
+// ===== Summary 小票 =====
+class PrinterFriendlySummaryFormatter extends ReceiptFormatter<SummaryReceipt> {
 
-  void registerFormatter(String key, ReceiptFormatter formatter) {
+  PrinterFriendlySummaryFormatter({this.lineWidth = 32, this.bottomPadding = 3});
+  final int lineWidth;
+  final int bottomPadding;
+
+  @override
+  String format(SummaryReceipt receipt) {
+    final sb = StringBuffer();
+
+    void appendLine(String label, String value) {
+      final availableSpace = lineWidth - label.length;
+      String displayValue = value.length > availableSpace
+          ? value.substring(0, availableSpace)
+          : value.padLeft(availableSpace);
+      sb.writeln('$label$displayValue');
+    }
+
+    void appendSeparator() => sb.writeln('-' * lineWidth);
+
+    sb.writeln('Summary'.padLeft((lineWidth + 7) ~/ 2));
+    sb.writeln(receipt.merchantName.padLeft((lineWidth + receipt.merchantName.length) ~/ 2));
+    appendSeparator();
+
+    appendLine('Sale', '${receipt.saleCount}  ${receipt.saleAmount.toStringAsFixed(2)}');
+    appendLine('Void', '${receipt.voidCount}  ${receipt.voidAmount.toStringAsFixed(2)}');
+    appendLine('Fail', '${receipt.failCount}  ${receipt.failAmount.toStringAsFixed(2)}');
+    appendSeparator();
+
+    appendLine('Payment Method', receipt.paymentMethod);
+    appendLine('MID', receipt.mid);
+    appendLine('TID', receipt.tid);
+    appendLine('Batch No.', receipt.batchNo);
+    appendLine('Currency', receipt.currency);
+    appendLine('Date Time', receipt.dateTime);
+
+    for (int i = 0; i < bottomPadding; i++) sb.writeln();
+
+    return sb.toString();
+  }
+}
+
+// ===== 统一管理器 =====
+class ReceiptManager {
+  final Map<String, dynamic> _formatters = {};
+
+  void registerFormatter<T>(String key, ReceiptFormatter<T> formatter) {
     _formatters[key] = formatter;
   }
 
-  String format(String key, SaleReceipt receipt) {
+  String format<T>(String key, T receipt) {
     final formatter = _formatters[key];
-    if (formatter == null) {
-      throw Exception('Formatter not found for key: $key');
-    }
-    return formatter.format(receipt);
+    if (formatter == null) throw Exception('Formatter not found for key: $key');
+    return (formatter as ReceiptFormatter<T>).format(receipt);
   }
 }

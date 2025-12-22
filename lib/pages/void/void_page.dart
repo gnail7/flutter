@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:op_flutter/pages/query/payment_detail_page.dart';
+import 'package:op_flutter/pages/void/void_detail.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
 import 'package:op_flutter/widgets/permission_wrapper.dart';
@@ -141,7 +141,9 @@ class _TransactionSearchPageState extends State<TransactionSearchPage> {
                             color: Colors.grey.shade600,
                             onPressed: () async {
                               final result = await Get.to<String>(
-                                    () => const QRScanTemplatePage(),
+                                    () =>  QRScanTemplatePage(onScanCompleted: (String result) {
+                                      Get.off(() => VoidDetailPage(orderNo: result));
+                                    },),
                               );
                               if (result != null && result.isNotEmpty) {
                                 setState(() {
@@ -163,7 +165,7 @@ class _TransactionSearchPageState extends State<TransactionSearchPage> {
                               ? null
                               : () {
                             final orderNo = _controller.text.trim();
-                            Get.to(() => PaymentDetailPage(orderNo: orderNo));
+                            Get.to(() => VoidDetailPage(orderNo: orderNo));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _controller.text.trim().isNotEmpty

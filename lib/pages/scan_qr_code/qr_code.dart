@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:get/get.dart';
-import 'package:op_flutter/network/tcp_socket_service.dart';
+import 'package:op_flutter/network/direct_pay/direct_pay.dart';
+import 'package:op_flutter/pages/query/payment_detail_page.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/widgets/amount_input.dart';
+import 'package:op_flutter/widgets/toast.dart';
 
 class QRScanEntryPage extends StatefulWidget {
   const QRScanEntryPage({super.key});
@@ -43,12 +45,13 @@ class QRScanPageWithAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return QRScanPage();
+    return QRScanPage(amount: amount,);
   }
 }
 
 class QRScanPage extends StatefulWidget {
-  const QRScanPage({super.key});
+  const QRScanPage({required this.amount, super.key});
+  final double amount;
 
   @override
   State<QRScanPage> createState() => _QRScanPageState();
@@ -84,21 +87,51 @@ class _QRScanPageState extends State<QRScanPage>
     super.dispose();
   }
 
-  void _handleScan(BarcodeCapture capture) {
+  Future<void> submitDirectPay(String payCode) async {
+    final payMethods = DirectPayApi.getPayMethods(payCode);
+
+    if (payMethods == null) {
+      showCenterToast('Unsupported QR Code', type: ToastType.warning);
+      return;
+    }
+
+    try {
+      final orderNumber = UserController.to.user.value?.orderNo;
+
+      final amount = widget.amount;
+
+      final resp = await DirectPayApi.directPay(
+        payCode: payCode,
+        payMethods: payMethods,
+        orderNumber: orderNumber!,
+        orderAmount: amount.toStringAsFixed(2),
+        orderCurrency: UserController.to.user.value!.currency,
+        deviceId: '',
+      );
+      showCenterToast('E00: 成功', type: ToastType.success);
+      await Future.delayed(const Duration(seconds: 2));
+      Get.to(() => PaymentDetailPage(orderNo: UserController.to.user.value!.orderNo));
+    } catch (e) {
+
+    }
+  }
+
+  /// 扫描回调
+  void _handleScan(BarcodeCapture capture) async {
     if (isScanCompleted) return;
     final barcode = capture.barcodes.first;
     final value = barcode.rawValue;
-    print('');
     if (value != null) {
       setState(() {
         isScanCompleted = true;
         scannedCode = value;
       });
       cameraController.stop();
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text("扫描结果：$value")),
-      // );
+      try {
+        await submitDirectPay(value);
+      } catch (err){
+        print('errr $err');
+      }
     }
   }
 
@@ -316,11 +349,7 @@ class _QRScanPageState extends State<QRScanPage>
                   ),
                   onPressed: () {
                     final text = manualController.text.trim();
-                    if (text.isNotEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("手动输入：$text")),
-                      );
-                    }
+                    
                   },
                   child: const Text(
                     "OK",

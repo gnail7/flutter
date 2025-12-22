@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/constant/common.dart';
+import 'package:op_flutter/pages/query/batch_print.dart';
 import 'package:op_flutter/pages/query/payment_detail_page.dart';
 import 'package:op_flutter/pages/query/search_bill_page.dart';
 import 'package:op_flutter/store/user_controller.dart';
@@ -8,6 +9,8 @@ import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
 import 'package:op_flutter/widgets/paginated_page_list.dart';
 import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
+
+import '../../models/query/payment_record.dart';
 
 /// 主页面
 class SearchPrintPage extends StatelessWidget {
@@ -68,7 +71,7 @@ class SearchPrintPage extends StatelessWidget {
                   voidCount: batch.totalVoid,
                   failCount: batch.totalFailed,
                   onSumPrint: controller.handleSumPrint,
-                  onBatchPrint: () => print('Batch Print clicked'),
+                  onBatchPrint: () => Get.to(BatchPrintPage()),
                 );
               }),
               Expanded(
@@ -161,7 +164,11 @@ class PaymentItemWidget extends StatelessWidget {
           ],
         ),
         onTap: () {
-          Get.to(() => PaymentDetailPage(orderNo: payment['orderNo'],));
+          final record = PaymentRecord.fromJson(payment);
+
+          Get.to(() => PaymentDetailPage(
+            payment: record,
+          ));
         },
       ),
     );
@@ -284,19 +291,19 @@ class BatchCardWidget extends StatelessWidget {
     required this.batchNo,
     required this.totalAmount,
     required this.currency,
-    required this.saleCount,
-    required this.voidCount,
-    required this.failCount,
     required this.onSumPrint,
     required this.onBatchPrint,
+    this.saleCount,
+    this.voidCount,
+    this.failCount,
     super.key,
   });
   final String batchNo;
   final double totalAmount;
   final String currency;
-  final int saleCount;
-  final int voidCount;
-  final int failCount;
+  final String? saleCount;
+  final String? voidCount;
+  final String? failCount;
   final VoidCallback onSumPrint;
   final VoidCallback onBatchPrint;
 
@@ -332,9 +339,9 @@ class BatchCardWidget extends StatelessWidget {
               children: [
                 _buildRow('Batch No.', batchNo),
                 _buildRow('Total Amount', '$currency $totalAmount', valueColor: Colors.green),
-                _buildRow('Sale', '$saleCount'),
-                _buildRow('Void', '$voidCount'),
-                _buildRow('Fail', '$failCount'),
+                _buildRow('Sale', '${parseCount(saleCount)}'),
+                _buildRow('Void', '${parseCount(voidCount)}'),
+                _buildRow('Fail', '${parseCount(failCount)}'),
               ],
             ),
           ),
