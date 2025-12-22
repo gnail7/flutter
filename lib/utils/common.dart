@@ -6,6 +6,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 
 /// 保存最近登录时间
 Future<void> saveRecentLoginDate() async {
@@ -108,3 +111,15 @@ String getRightNow() {
       '${now.minute.toString().padLeft(2, '0')}:'
       '${now.second.toString().padLeft(2, '0')}';
 }
+
+Future<Uint8List> widgetToImage(GlobalKey key) async {
+  final boundary =
+  key.currentContext!.findRenderObject() as RenderRepaintBoundary;
+
+  final image = await boundary.toImage(pixelRatio: 3.0);
+  final byteData =
+  await image.toByteData(format: ui.ImageByteFormat.png);
+
+  return byteData!.buffer.asUint8List();
+}
+

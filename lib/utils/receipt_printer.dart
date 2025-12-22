@@ -12,7 +12,6 @@ class SaleReceipt {
     required this.currency,
     required this.paymentId,
     required this.dateTime,
-    required this.barcode,
   });
   final String merchantName;
   final String paymentMethod;
@@ -24,7 +23,6 @@ class SaleReceipt {
   final String currency;
   final String paymentId;
   final String dateTime;
-  final String barcode;
 }
 
 class SummaryReceipt {
@@ -100,7 +98,6 @@ class PrinterFriendlySaleFormatter extends ReceiptFormatter<SaleReceipt> {
     appendLine('Date Time', receipt.dateTime);
 
     appendSeparator();
-    sb.writeln(receipt.barcode.padLeft((lineWidth + receipt.barcode.length) ~/ 2));
 
     for (int i = 0; i < bottomPadding; i++) sb.writeln();
 

@@ -40,9 +40,30 @@
                             } catch (Exception e) {
                                 result.error("PRINT_ERROR", "打印失败: " + e.getMessage(), null);
                             }
-                        } else {
-                            result.notImplemented();
                         }
+
+                        if (call.method.equals("printBitmap")) {
+                            try {
+                                byte[] bytes = call.argument("bytes");
+                                if (bytes == null || bytes.length == 0) {
+                                    result.error("INVALID_DATA", "Bitmap bytes is null", null);
+                                    return;
+                                }
+
+                                Bitmap bitmap =
+                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                                printer.printBitmap(bitmap);
+                                printer.start();
+
+                                result.success("printBitmap success");
+                            } catch (Exception e) {
+                                result.error("PRINT_ERROR", "打印失败: " + e.getMessage(), null);
+                            }
+
+                        }
+
+
                     }
             );
         }
