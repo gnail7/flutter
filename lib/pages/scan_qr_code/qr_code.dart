@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/constant/config.dart';
+import 'package:op_flutter/models/query/direct_resp.dart';
 import 'package:op_flutter/network/direct_pay/direct_pay.dart';
 import 'package:op_flutter/pages/query/payment_detail_page.dart';
 import 'package:op_flutter/routes/app_routes.dart';
@@ -63,6 +65,7 @@ class _QRScanPageState extends State<QRScanPage>
 
   bool isScanCompleted = false;
   String? scannedCode;
+  bool _loading = false;
 
   late final AnimationController _animationController;
   late final Animation<double> _animation;
@@ -96,23 +99,32 @@ class _QRScanPageState extends State<QRScanPage>
     }
 
     try {
+      _loading = true;
       final orderNumber = UserController.to.user.value?.orderNo;
 
       final amount = widget.amount;
-
-      final resp = await DirectPayApi.directPay(
+      final deviceId = await getDeviceId();
+      final xmlString = await DirectPayApi.directPay(
         payCode: payCode,
         payMethods: payMethods,
         orderNumber: orderNumber!,
         orderAmount: amount.toStringAsFixed(2),
         orderCurrency: UserController.to.user.value!.currency,
-        deviceId: '',
+        deviceId: deviceId.toString()
       );
-      showCenterToast('E00: 成功', type: ToastType.success);
-      await Future.delayed(const Duration(seconds: 2));
-      Get.to(() => PaymentDetailPage(orderNo: UserController.to.user.value!.orderNo));
-    } catch (e) {
 
+      final resp = DirectResp.fromXml(xmlString);
+      if (resp.isPaymentSuccess) {
+        showCenterToast('E00: 成功', type: ToastType.success);
+        await Future.delayed(const Duration(seconds: 2));
+        Get.to(() => PaymentDetailPage(orderNo: UserController.to.user.value!.orderNo));
+      } else {
+        showCenterToast(resp.paymentDetails,  type: ToastType.error);
+        Get.offAllNamed(AppRoutes.home);
+      }
+    } catch (e) {
+    }finally {
+      _loading = false;
     }
   }
 
@@ -347,9 +359,9 @@ class _QRScanPageState extends State<QRScanPage>
                     padding:
                     const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                   ),
-                  onPressed: () {
+                  onPressed: ()async {
                     final text = manualController.text.trim();
-                    
+                    await submitDirectPay(text);
                   },
                   child: const Text(
                     "OK",

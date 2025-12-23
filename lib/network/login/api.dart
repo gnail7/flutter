@@ -37,6 +37,14 @@ class LoginApi {
       decoder: (json) => ApiResponse<dynamic>.fromJson(json, (data) => data),
     );
   }
+
+  static Future<ApiResponse<dynamic>> updatePassword(UpdateRequest request)async {
+    return DioManager.request<ApiResponse<dynamic>>(
+        '/service/password/update',
+        method: 'POST',
+        params: request.toJson(),
+        decoder: (json)=>json);
+  }
 }
 
 

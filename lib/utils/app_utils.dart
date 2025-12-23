@@ -4,6 +4,7 @@ import 'package:basic_utils/basic_utils.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/api.dart';
 import 'package:asn1lib/asn1lib.dart';
+import 'package:pointycastle/asymmetric/pkcs1.dart';
 import 'package:pointycastle/asymmetric/rsa.dart';
 
 RSAPublicKey loadPublicKeyByStr(String publicKeyStr) {
@@ -46,6 +47,44 @@ String rsaEncryptNoPadding(String plainText, RSAPublicKey publicKey) {
   final encrypted = engine.process(padded);
 
   return base64Encode(encrypted);
+}
+
+String rsaEncryptNoPaddingChunked(
+    String plainText,
+    RSAPublicKey publicKey,
+    ) {
+  final engine = RSAEngine()
+    ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
+
+  final data = Uint8List.fromList(utf8.encode(plainText));
+  final keySize = (publicKey.modulus!.bitLength + 7) >> 3; // bytes
+
+  final result = <int>[];
+
+  int offset = 0;
+  while (offset < data.length) {
+    final remain = data.length - offset;
+
+    // 本块明文长度：≤ keySize
+    final chunkLen = remain >= keySize ? keySize : remain;
+
+    // 每一块都必须是 keySize
+    final block = Uint8List(keySize);
+
+    // 左补 0（与你原来的逻辑完全一致）
+    block.setRange(
+      keySize - chunkLen,
+      keySize,
+      data.sublist(offset, offset + chunkLen),
+    );
+
+    final encryptedBlock = engine.process(block);
+    result.addAll(encryptedBlock);
+
+    offset += chunkLen;
+  }
+
+  return base64Encode(result);
 }
 
 

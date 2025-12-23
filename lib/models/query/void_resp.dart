@@ -21,13 +21,13 @@ class VoidResp {
     }
 
     return VoidResp(
-      account: root.getElement('account')?.text ?? '',
-      terminal: root.getElement('terminal')?.text ?? '',
-      signValue: root.getElement('signValue')?.text ?? '',
-      orderNumber: root.getElement('order_number')?.text ?? '',
-      paymentId: root.getElement('payment_id')?.text ?? '',
-      paymentStatus: root.getElement('payment_status')?.text ?? '0',
-      paymentDetails: root.getElement('payment_details')?.text ?? '',
+      account: root.getElement('account')?.value ?? '',
+      terminal: root.getElement('terminal')?.value ?? '',
+      signValue: root.getElement('signValue')?.value ?? '',
+      orderNumber: root.getElement('order_number')?.value ?? '',
+      paymentId: root.getElement('payment_id')?.value ?? '',
+      paymentStatus: root.getElement('payment_status')?.value ?? '0',
+      paymentDetails: root.getElement('payment_details')?.value ?? '',
     );
   }
   final String account;

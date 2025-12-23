@@ -5,7 +5,7 @@ import 'package:op_flutter/widgets/toast.dart';
 
 class DioManager {
   static final BaseOptions baseOptions = BaseOptions(
-    baseUrl: 'https://192.168.10.39:4443/epay',
+    baseUrl: 'https://epay39.oceanpayment.com/epay',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {

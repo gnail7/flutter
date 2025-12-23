@@ -16,6 +16,11 @@ class AppTheme {
 
       ),
     ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: AppColor.primaryBgColor, // 光标颜色
+      selectionColor: AppColor.primaryBgColor.withOpacity(0.4), // 选中背景颜色，可选
+      selectionHandleColor: AppColor.primaryBgColor, // 拖动手柄颜色，可选
+    ),
 
     // 全局输入框样式
     inputDecorationTheme: InputDecorationTheme(
@@ -31,6 +36,9 @@ class AppTheme {
 
       // 提示文字样式
       hintStyle: const TextStyle(color: Colors.grey),
+
+      // 聚焦后上浮的 label 颜色
+      floatingLabelStyle: TextStyle(color: AppColor.primaryBgColor),
     ),
 
   );

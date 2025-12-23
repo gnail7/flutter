@@ -20,7 +20,7 @@ Future<bool?> showConfirmDialog({
               // 图标 + 标题
               Row(
                 children: [
-                  Icon(Icons.info, color: Colors.orange, size: 26),
+                  const Icon(Icons.info, color: Colors.orange, size: 26),
                   const SizedBox(width: 10),
                   Text(
                     title,

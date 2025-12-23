@@ -9,17 +9,20 @@ import 'package:op_flutter/store/user_controller.dart';
 
 class QueryPageController extends GetxController {
   final userController = UserController.to;
-  var isLoading = false.obs;
-  var items = <Map<String, dynamic>>[].obs;
+
+  // ===== 状态 =====
+  final isLoading = false.obs;
+  final items = <Map<String, dynamic>>[].obs;
+  final hasMore = true.obs;
   var batchSummary = Rxn<BatchSummary>();
 
-  var pageSize = 10;  // 每页条数
-  var page = 1;       // 当前页码
-  var hasMore = true.obs;
+  // ===== 分页参数 =====
+  final int pageSize = 30;
+  int _page = 1;
 
-  // 筛选条件
-  var paymentFilter = ''.obs;
-  var typeFilter = ''.obs;
+  // ===== 筛选条件 =====
+  final paymentFilter = ''.obs;
+  final typeFilter = ''.obs;
 
   @override
   void onInit() {
@@ -27,70 +30,53 @@ class QueryPageController extends GetxController {
     refreshList();
   }
 
-  /// 分页加载数据
-  Future<void> loadPage({bool refresh = false}) async {
+  /// 下拉刷新（重置分页）
+  Future<void> refreshList() async {
+    hasMore.value = true;
+    _page = 1;
+    items.clear();
+    await loadPage();
+    hasMore.value = false;
+  }
+
+  /// 加载下一页
+  Future<void> loadPage() async {
+    if (isLoading.value || !hasMore.value) return;
+    print('sssss ${UserController.to.user.value?.passwordHash}');
     isLoading.value = true;
-    if (refresh) {
-      page = 1;
-      hasMore.value = true;
-      items.clear();
-    }
-
-    if (!hasMore.value) {
-      return;
-    }
-
-    final token = userController.user.value?.token;
-    final terminal = userController.user.value?.terminal;
-    final batchNo = userController.user.value?.batchNo;
 
     try {
-      final startIndex = (page - 1) * pageSize;
+      final user = userController.user.value!;
+      final startIndex = (_page - 1) * pageSize;
 
       final res = await QueryApi.fetchSummaryTransactions(
         QueryParams(
-          terminal: terminal!,
-          batchNo: batchNo!,
-          transType: typeFilter.value.isEmpty
-              ? 0
-              : _transTypeTextToInt(typeFilter.value), // 可根据筛选转换
-          token: token!,
+          terminal: user.terminal!,
+          batchNo: user.batchNo!,
+          token: user.token!,
           needTransDetails: 1,
           pageSize: pageSize,
           startIndex: startIndex,
-          paymentMethod: paymentFilter.value.isEmpty ? null : paymentFilter.value,
+          transType: typeFilter.value.isEmpty
+              ? 0
+              : _transTypeTextToInt(typeFilter.value),
+          paymentMethod:
+          paymentFilter.value.isEmpty ? null : paymentFilter.value,
         ),
       );
 
+      final detailList = res.data?.transDetails ?? [];
       batchSummary.value = res.data;
-
-      batchSummary.value = res.data;
-
-      // 直接取解析好的列表
-      final detailsList = res.data?.transDetails ?? [];
-
-      // 添加到 items 中，如果你的 items 仍然是 Map 则转一下
-      if (detailsList.isNotEmpty) {
-        items.addAll(detailsList.map((e) => e.toJson()));
-      }
-
-      // 根据 totalCount 判断是否还有更多
-      final totalCount = res.data?.totalCount ?? 0;
-      hasMore.value = items.length < totalCount;
-
-      // 下一页
-      if (hasMore.value) {
-        page++;
+      if (detailList.isNotEmpty) {
+        items.addAll(detailList.map((e) => e.toJson()));
       }
 
     } catch (e) {
-      print('❌ 请求异常: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// 将交易类型文本转换成接口需要的数字
   int _transTypeTextToInt(String type) {
     switch (type) {
       case 'Sale':
@@ -104,16 +90,11 @@ class QueryPageController extends GetxController {
     }
   }
 
-  /// 下拉刷新列表
-  void refreshList() {
-    loadPage(refresh: true);
-  }
-
-  /// 处理汇总打印
   void handleSumPrint() {
     Get.toNamed(AppRoutes.querySummaryPage);
   }
 }
+
 
 int parseCount(dynamic data) {
   if (data == null) return 0;

@@ -14,6 +14,7 @@ import 'package:op_flutter/pages/system_info/reset_password/reset_password.dart'
 import 'package:op_flutter/pages/system_info/settings.dart';
 import 'package:op_flutter/pages/system_info/system/system.dart';
 import 'package:op_flutter/pages/system_info/system_page.dart';
+import 'package:op_flutter/pages/system_info/user_management/user_management.dart';
 import 'package:op_flutter/pages/void/void_detail.dart';
 import 'package:op_flutter/pages/void/void_page.dart';
 import '../pages/login/login_page.dart';
@@ -80,6 +81,9 @@ import '../pages/login/login_page.dart';
       ),
       GetPage(name: AppRoutes.failTrans, page: () => FailedTransactionPage()),
       GetPage(name: AppRoutes.setting, page: () => const SettingPage()),
-      GetPage(name: AppRoutes.transSetting, page: () => const TransSettingsPage())
-    ];
+      GetPage(name: AppRoutes.transSetting, page: () => const TransSettingsPage()),
+      GetPage(name: AppRoutes.userManagement, page: () => UserManagementPage()),
+
+    ]
+    ;
   }

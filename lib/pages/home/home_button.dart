@@ -34,36 +34,7 @@ class HomeButton extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        final receipt = SaleReceipt(
-          merchantName: 'My Shop',
-          paymentMethod: 'Credit Card',
-          mid: '123456',
-          tid: '654321',
-          batchNo: '001',
-          billNo: '1001',
-          amount: '50.00',
-          currency: 'USD',
-          paymentId: 'ABC123',
-          dateTime: '2025-12-21 16:30',
-        );
 
-        // 原有逻辑不动
-        final manager = ReceiptManager();
-        manager.registerFormatter('printer', PrinterFriendlySaleFormatter());
-
-        const platform = MethodChannel('com.example.op_flutter/printer');
-
-        // await platform.invokeMethod('printStr', {
-        //   'text': manager.format('printer', receipt)
-        // });
-        // 2️⃣ 打印二维码（用 paymentId）
-        final qrBytes = await generateQrImage(receipt.paymentId);
-        print('qrbytes ${qrBytes}');
-        await platform.invokeMethod('printBitmap', {
-          'bytes': qrBytes,
-        });
-
-        return;
         final result = await AuthGuard.check(name);
         /// 无需settlement
         if (result == AuthCheckResult.allow) {

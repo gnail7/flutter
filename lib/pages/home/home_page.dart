@@ -29,7 +29,6 @@ class HomePage extends StatelessWidget {
             color: Colors.white, // 图标颜色改为白色
           ),
           onPressed: () {
-            connectSecure();
             Get.toNamed(AppRoutes.system);
           },
         ),
