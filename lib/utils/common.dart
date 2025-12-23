@@ -139,3 +139,30 @@ Future<Uint8List> widgetToImage(GlobalKey key) async {
 
   return byteData!.buffer.asUint8List();
 }
+
+Future<Uint8List> drawBarcodePng(String code, {int width = 384, int height = 128}) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+
+  final paint = Paint()..color = Colors.white;
+  canvas.drawRect(Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), paint);
+
+  final blackPaint = Paint()..color = Colors.black;
+
+  int x = 0;
+  final unit = 4;
+  for (int i = 0; i < code.length; i++) {
+    int charCode = code.codeUnitAt(i);
+    int barWidth = unit + (charCode % 5);
+    if (i % 2 == 0) {
+      canvas.drawRect(Rect.fromLTWH(x.toDouble(), 0, barWidth.toDouble(), height.toDouble()), blackPaint);
+    }
+    x += barWidth;
+  }
+
+  final picture = recorder.endRecording();
+  final image = await picture.toImage(width, height);
+  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+  return byteData!.buffer.asUint8List();
+}

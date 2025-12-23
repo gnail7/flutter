@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' hide Uint8List;
 import 'package:op_flutter/models/users/user_model.dart';
 import 'package:op_flutter/routes/app_routes.dart';
 import 'package:op_flutter/utils/app_utils.dart';
 import 'package:op_flutter/utils/common.dart';
+import 'package:op_flutter/utils/receipt_printer.dart';
 import 'package:op_flutter/utils/simple_prefs.dart';
 import 'package:op_flutter/widgets/toast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -13,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:op_flutter/network/login/api.dart';
 import 'package:op_flutter/network/login/login_request.dart';
 import 'package:op_flutter/store/user_controller.dart';
+import 'dart:typed_data';
 
 
 class LoginController extends GetxController {
@@ -81,7 +84,37 @@ class LoginController extends GetxController {
 
   /// 登录
   Future<void> handleLogin({bool useToken = false}) async {
+    inal receipt = SaleReceipt(
+      merchantName: 'My Shop',
+      paymentMethod: 'Credit Card',
+      mid: '123456',
+      tid: '654321',
+      batchNo: '001',
+      billNo: '1001',
+      amount: '50.00',
+      currency: 'USD',
+      paymentId: 'ABC123',
+      dateTime: '2025-12-21 16:30',
+    );
 
+    final manager = ReceiptManager();
+    manager.registerFormatter('printer', PrinterFriendlySaleFormatter());
+
+    const platform = MethodChannel('com.example.op_flutter/printer');
+
+    final r1 = await platform.invokeMethod('printStr', {
+      'text': manager.format('printer', receipt),
+      'param': null,
+    });
+    // Uint8List pngBytes = await drawBarcodePng("1234567890");
+    //
+    // const platform = MethodChannel('com.example.op_flutter/printer');
+    // print('object pngBytes $pngBytes');
+    // await platform.invokeMethod('printStr', {"text": 'pngBytespngBytespngBytespngBytespngBytespngBytespngBytespngBytespngBytespngBytespngBytes'});
+    // final result = await platform.invokeMethod('printBarcode', {"pngBytes": pngBytes});
+
+
+    return;
     if ((username.value.isEmpty || password.value.isEmpty) && !useToken) {
       showCenterToast("请输入用户名和密码", type: ToastType.warning);
       return;
