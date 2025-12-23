@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:op_flutter/pages/system_info/merchant_info/merchant_info_page.dart';
+import 'package:op_flutter/routes/app_routes.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -21,7 +22,7 @@ class SettingPage extends StatelessWidget {
         icon: Icons.settings,
         color: Colors.orange,
         onTap: () {
-          Get.toNamed('/trans_settings');
+          Get.toNamed(AppRoutes.transSetting);
         },
       ),
       _SettingMenu(

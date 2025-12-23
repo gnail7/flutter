@@ -6,9 +6,9 @@ import 'package:op_flutter/theme/app_theme.dart';
 import 'package:op_flutter/utils/simple_prefs.dart';
 import 'routes/app_routes.dart';
 
-void main() async{
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await SimplePrefs.instance.init();
+  SimplePrefs.instance.init();
   DioManager.init();
   Get.put(UserController(), permanent: true);
   runApp(const MyApp());
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'pos demo',
       theme: AppTheme.defaultTheme,
-      initialRoute: AppRoutes.home, // 默认启动页
+      initialRoute: AppRoutes.login, // 默认启动页
       getPages: AppPages.routes, // 路由表
     );
   }

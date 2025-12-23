@@ -104,6 +104,8 @@ flutter:
     - images/login_bg.jpeg
     - images/qr_logo.png
     - images/img_login_bg.png
+    - images/img_settlement.png
+    - images/img_user_add.png
 
 
   # To add assets to your application, add an assets section, like this:

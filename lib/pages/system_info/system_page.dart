@@ -36,7 +36,9 @@ class SystemInfoPage extends StatelessWidget {
         icon: Icons.supervised_user_circle,
         color: Colors.green,
         allowedRoles: ["operator"],
-        onTap: () {},
+        onTap: () {
+          Get.toNamed(AppRoutes.userManagement);
+        },
       ),
       _SystemMenu(
         title: "Operation Log",
@@ -145,7 +147,6 @@ class SystemInfoPage extends StatelessWidget {
             child: GestureDetector(
               onTap: () async {
                 await UserController.to.logout(); // 调用退出登录
-                // Get.offAllNamed(AppRoutes.login); // 跳转到登录页并清空路由栈
               },
               child: const CircleAvatar(
                 radius: 18,

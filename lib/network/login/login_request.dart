@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/utils/sign_helper_epay.dart';
 /// 获取 SecureKey
 class SecureKeyRequest {
 
@@ -60,5 +62,21 @@ class LogoutRequest {    // 参数签名（SHA256，可选）
     "orderNo": orderNo,
     "token": token,
     "sign": sign,
+  };
+}
+
+/// 更新密码请求参数
+class UpdateRequest {
+  UpdateRequest({required this.terminal, required this.token, required this.secure, required this.sign,});
+  final String terminal;
+  final String token;
+  final String secure;
+  final String sign;
+
+  Map<String, dynamic> toJson() => {
+    "terminal": terminal,
+    "token": token,
+    "secure": secure,
+    "sign": sign
   };
 }

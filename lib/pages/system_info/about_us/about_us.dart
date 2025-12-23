@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -14,7 +15,7 @@ class AboutPage extends StatefulWidget {
 class _AboutPageState extends State<AboutPage> {
   String version = '';
   String deviceId = '';
-
+  String appName = '';
   @override
   void initState() {
     super.initState();
@@ -42,16 +43,16 @@ class _AboutPageState extends State<AboutPage> {
     setState(() {
       version = packageInfo.version;
       deviceId = id;
+      appName = packageInfo.appName;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     // 其他固定信息
-    const appName = "OceanPay";
     const updateTime = "2025-04-18 16:50:28";
-    const contact = "123";
-    const about = "1234";
+    final contact = UserController.to.user.value?.companyContact;
+    final about = UserController.to.user.value?.companyInfo;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,9 +83,9 @@ class _AboutPageState extends State<AboutPage> {
             const SizedBox(height: 16),
 
             // App 名称
-            const Text(
+            Text(
               appName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
@@ -106,8 +107,8 @@ class _AboutPageState extends State<AboutPage> {
             // 信息列表
             _buildInfoRow("Update Time", updateTime),
             _buildInfoRow("Device ID", deviceId.isEmpty ? "Loading..." : deviceId),
-            _buildInfoRow("Contact", contact),
-            _buildInfoRow("About Oceanpayment", about),
+            _buildInfoRow("Contact", contact!),
+            _buildInfoRow("About Oceanpayment", about!),
 
             const SizedBox(height: 40),
 

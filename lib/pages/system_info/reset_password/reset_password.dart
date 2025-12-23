@@ -1,6 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/models/users/user_model.dart';
+import 'package:op_flutter/network/login/api.dart';
+import 'package:op_flutter/network/login/login_request.dart';
 import 'package:op_flutter/store/user_controller.dart';
+import 'package:op_flutter/theme/app_colors.dart';
+import 'package:op_flutter/utils/app_utils.dart';
+import 'package:op_flutter/utils/common.dart';
 import 'package:op_flutter/widgets/password_verify.dart';
 import 'package:op_flutter/widgets/permission_wrapper.dart';
 
@@ -10,7 +18,6 @@ class ChangePasswordEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = UserController.to.user.value;
-
     return PermissionWrapper(
       /// 是否需要先校验旧密码
       shouldShowPasswordPage: () => true,
@@ -22,7 +29,7 @@ class ChangePasswordEntry extends StatelessWidget {
       passwordPageBuilder: (onSuccess) => PasswordVerifyPage(
         appBarTitle: 'Verify Password',
         descriptionText: 'Please enter your current password',
-        correctPassword: user?.voidPass ?? '',
+        correctPassword: UserController.to.sha256Password.value ?? '',
         onSuccess: onSuccess,
       ),
     );
@@ -65,13 +72,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     setState(() => loading = true);
 
-    /// TODO: 调用修改密码接口
-    await Future.delayed(const Duration(seconds: 1));
+
+    final user = UserController.to.user.value;
+    final secureInfo = {
+      "newPassword": sha256Hex(newPwd),
+      "oldPassword": UserController.to.sha256Password.value
+    };
+    final encryptBase64 = rsaEncryptNoPaddingChunked(
+      jsonEncode(secureInfo),
+      parsePemPublicKey(derToPem(user!.publicKey)),
+    );
+
+    final req =UpdateRequest(terminal: user.terminal.toString(), token: user.token, secure: user.secureCode, sign: encryptBase64 );
+    final res =  await LoginApi.updatePassword(req);
 
     setState(() => loading = false);
 
     Get.back(); // 返回上一页
-    Get.snackbar('Success', 'Password changed successfully');
   }
 
   @override
@@ -81,6 +98,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       appBar: AppBar(
         title: const Text('Change Password'),
         centerTitle: true,
+        backgroundColor: AppColor.primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -88,6 +106,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(

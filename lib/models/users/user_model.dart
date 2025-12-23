@@ -1,31 +1,4 @@
 class User {
-  final String token;
-  final int account;
-  final int terminal;
-  String userName;
-  final String merName;
-  final String batchNo;
-  final String orderNo;
-  final String logoUrl;
-  final String merAddr;
-  final String secureCode;
-  final String publicKey;
-  final String currency;
-  final int printReceipt;
-  final int voidNeedPass;
-  final String? voidPass;
-  final int settNeedPass;
-  final String? settPass;
-  final String? settingsPass;
-  final int multiUser;
-  final int supportPayType;
-  final int clearLoginDays;
-  final String companyInfo;
-  final String companyContact;
-  final int role;
-  final String supportCurrencies;
-  final int externalCall;
-  String secureKey;
 
   User({
     required this.token,
@@ -43,18 +16,9 @@ class User {
     required this.printReceipt,
     required this.voidNeedPass,
     required this.secureKey,
-    this.voidPass,
-    required this.settNeedPass,
+    required this.passwordHash, required this.settNeedPass, required this.multiUser, required this.supportPayType, required this.clearLoginDays, required this.companyInfo, required this.companyContact, required this.role, required this.supportCurrencies, required this.externalCall, this.voidPass,
     this.settPass,
     this.settingsPass,
-    required this.multiUser,
-    required this.supportPayType,
-    required this.clearLoginDays,
-    required this.companyInfo,
-    required this.companyContact,
-    required this.role,
-    required this.supportCurrencies,
-    required this.externalCall,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -86,8 +50,37 @@ class User {
       supportCurrencies: json["supportCurrencies"] ?? "",
       externalCall: json["externalCall"] ?? 0,
       secureKey: json["secureKey"]?.toString() ?? "",
+      passwordHash: json["sha256Password"] ?? "",
     );
   }
+  final String token;
+  final int account;
+  final int terminal;
+  String userName;
+  final String merName;
+  final String batchNo;
+  final String orderNo;
+  final String logoUrl;
+  final String merAddr;
+  final String secureCode;
+  final String publicKey;
+  final String currency;
+  final int printReceipt;
+  final int voidNeedPass;
+  final String? voidPass;
+  final int settNeedPass;
+  final String? settPass;
+  final String? settingsPass;
+  final int multiUser;
+  final int supportPayType;
+  final int clearLoginDays;
+  final String companyInfo;
+  final String companyContact;
+  final int role;
+  final String supportCurrencies;
+  final int externalCall;
+  final String passwordHash;
+  String secureKey;
 
   Map<String, dynamic> toJson() => {
     "token": token,

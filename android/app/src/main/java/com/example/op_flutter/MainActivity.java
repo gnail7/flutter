@@ -36,40 +36,12 @@
                                 printer.init();
                                 printer.printStr(text, param); // 注意：这里的文本可替换为 text
                                 int status = printer.start();
-
+                                printer.print
                                 result.success("打印成功，状态: " + status);
                             } catch (Exception e) {
                                 result.error("PRINT_ERROR", "打印失败: " + e.getMessage(), null);
                             }
                         }
-
-                        if (call.method.equals("printBitmap")) {
-                            try {
-                                // 获取 DAL 实例
-                                NeptuneLiteUser neptuneLiteUser = NeptuneLiteUser.getInstance();
-                                com.pax.dal.IDAL dal = neptuneLiteUser.getDal(this);
-                                IPrinter printer = dal.getPrinter();
-                                printer.init();
-                                byte[] bytes = call.argument("bytes");
-                                if (bytes == null || bytes.length == 0) {
-                                    result.error("INVALID_DATA", "Bitmap bytes is null", null);
-                                    return;
-                                }
-
-                                Bitmap bitmap =
-                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                                printer.printBitmap(bitmap);
-                                printer.start();
-
-                                result.success("printBitmap success");
-                            } catch (Exception e) {
-                                result.error("PRINT_ERROR", "打印失败: " + e.getMessage(), null);
-                            }
-
-                        }
-
-
                     }
             );
         }

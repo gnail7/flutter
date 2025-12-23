@@ -5,7 +5,6 @@ import 'package:op_flutter/pages/query/payment_detail_page.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
-import 'package:op_flutter/widgets/paginated_page_list.dart';
 import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
 
 /// 失败交易页面
@@ -46,18 +45,55 @@ class FailedTransactionPage extends StatelessWidget {
               ),
             ],
           ),
-          body: PaginatedListView<Map<String, dynamic>>(
-            pageSize: controller.pageSize,
-            fetchData: (page) async {
-              await controller.loadPage();
-              // 只保留失败交易
-              return controller.items
-                  .where((item) => item['transType'] == 3)
-                  .toList();
-            },
-            itemBuilder: (context, item, index) {
-              return PaymentItemWidget(payment: item);
-            },
+          body: RefreshIndicator(
+            onRefresh: controller.refreshList,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 50 &&
+                    !controller.isLoading.value &&
+                    controller.hasMore.value) {
+                  controller.loadPage();
+                }
+                return false;
+              },
+              child: Obx(() {
+                final failedItems = controller.items
+                    .where((item) => item['transType'] == 3)
+                    .toList();
+
+                if (failedItems.isEmpty && controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (failedItems.isEmpty) {
+                  return const Center(child: Text('暂无数据'));
+                }
+
+                return ListView.builder(
+                  itemCount: failedItems.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < failedItems.length) {
+                      final item = failedItems[index];
+                      return PaymentItemWidget(payment: item);
+                    } else {
+                      // 底部状态
+                      if (controller.hasMore.value) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: Text('没有更多数据')),
+                        );
+                      }
+                    }
+                  },
+                );
+              }),
+            ),
           ),
         ),
       );

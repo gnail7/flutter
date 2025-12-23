@@ -72,11 +72,7 @@ class _SettlementPageState extends State<SettlementPage> {
 
       if (res.code == '0') {
         showCenterToast('Settlement success');
-
-        // 1️⃣ 回首页
         Get.offAllNamed(AppRoutes.home);
-
-        // setState(() {});
       } else {
         showCenterToast(
           res.message ?? 'Settlement failed',
@@ -165,7 +161,6 @@ class _SettlementPageState extends State<SettlementPage> {
 
                   /// ===== 表头 =====
                   _buildTableHeader(),
-                  const Divider(),
 
                   /// ===== 统计数据（示例）=====
                   if (summary != null) ...[
@@ -192,7 +187,8 @@ class _SettlementPageState extends State<SettlementPage> {
                   /// ===== 基础信息 =====
                   _buildKV('MID',  '-'),
                   _buildKV('TID', user?.terminal.toString() ?? '-'),
-                  _buildKV('Batch No.', '000013'),
+                  _buildKV('Merchant Name', user?.merName ?? '-'),
+                  _buildKV('Batch No.', user?.batchNo ?? '-'),
                   _buildKV('Currency', user?.currency ?? '-'),
                   _buildKV('Date Time', getRightNow()),
 
@@ -227,14 +223,14 @@ class _SettlementPageState extends State<SettlementPage> {
 }
 
 Widget _buildTableHeader() {
-  return const Row(
-    children: [
-      Expanded(flex: 2, child: Text('Type', style: TextStyle(fontWeight: FontWeight.bold))),
-      Expanded(child: Text('Count', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
-      Expanded(child: Text('Amount', textAlign: TextAlign.end, style: TextStyle(fontWeight: FontWeight.bold))),
-    ],
+  return Image.asset(
+    'images/img_settlement.png',
+    fit: BoxFit.fitHeight,
+    width: double.infinity,
+    height: 120,
   );
 }
+
 
 Widget _buildRow(String type, String count, String amount) {
   return Padding(

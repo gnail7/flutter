@@ -7,7 +7,6 @@ import 'package:op_flutter/pages/query/search_bill_page.dart';
 import 'package:op_flutter/store/user_controller.dart';
 import 'package:op_flutter/theme/app_colors.dart';
 import 'package:op_flutter/widgets/custom_loading_dialog.dart';
-import 'package:op_flutter/widgets/paginated_page_list.dart';
 import 'package:op_flutter/pages/query/controller/query_page_controller.dart';
 
 import '../../models/query/payment_record.dart';
@@ -75,16 +74,49 @@ class SearchPrintPage extends StatelessWidget {
                 );
               }),
               Expanded(
-                child: PaginatedListView<Map<String, dynamic>>(
-                  pageSize: controller.pageSize,
-                  fetchData: (page) async {
-                    await controller.loadPage();
-                    return controller.items.toList();
-                  },
-                  itemBuilder: (context, item, index) {
-                    return PaymentItemWidget(payment: item);
-                  },
-                ),
+                child: Obx(() {
+                  if (controller.items.isEmpty && controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (controller.items.isEmpty) {
+                    return const Center(child: Text('暂无数据'));
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: controller.refreshList,
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification.metrics.pixels >=
+                            notification.metrics.maxScrollExtent - 50) {
+                          controller.loadPage();
+                        }
+                        return false;
+                      },
+                      child: ListView.builder(
+                        itemCount: controller.items.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index < controller.items.length) {
+                            final item = controller.items[index];
+                            return PaymentItemWidget(payment: item);
+                          }
+
+                          if (controller.hasMore.value) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          } else {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: Text('没有更多数据')),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -259,8 +291,8 @@ class FilterSheet extends StatelessWidget {
                       selected: isSelected,
                       selectedColor: Colors.green,
                       onSelected: (selected) {
-                        controller.refreshList();
                         controller.typeFilter.value = selected ? type : '0';
+                        controller.refreshList();
                       },
                     );
                   }).toList(),

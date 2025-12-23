@@ -54,7 +54,9 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
   }
 
   Future<void> _loadData({bool refresh = false}) async {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
     setState(() => isLoading = true);
 
     if (refresh) {

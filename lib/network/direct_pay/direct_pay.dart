@@ -8,7 +8,7 @@ import 'package:op_flutter/utils/sign_helper_epay.dart';
 /// DirectPay 交易接口封装
 class DirectPayApi {
   /// 发起 DirectPay 支付
-  static Future<ApiResponse<Map<String, dynamic>>> directPay({
+  static Future<String> directPay({
     required String payCode,
     required String payMethods,
     required String orderNumber,
@@ -60,15 +60,12 @@ class DirectPayApi {
     final signValue = sha256Hex(signString);
     requestMap['signValue'] = signValue; // 加入请求参数
     // 调用 DirectPay 接口（可传完整 URL）
-    return DioManager.request<ApiResponse<Map<String, dynamic>>>(
+    return DioManager.request<String>(
       'http://192.168.10.39:8680/PaymentGateway/gateway/directservice/pay',
       method: 'POST',
       params: requestMap,
       contentType: Headers.formUrlEncodedContentType,
-      decoder: (json) => ApiResponse<Map<String, dynamic>>.fromJson(
-        json,
-            (data) => Map<String, dynamic>.from(data),
-      ),
+      decoder: (json) => json,
     );
   }
 
