@@ -53,6 +53,7 @@ dependencies:
   barcode: ^2.2.4
   barcode_widget: ^2.0.4
   xml: ^6.1.0
+  image: ^4.1.7
 
 
 

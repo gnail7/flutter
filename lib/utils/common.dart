@@ -9,6 +9,9 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
+import 'package:barcode/barcode.dart';
+import 'package:barcode_widget/barcode_widget.dart'; // ✅ 这里必须有
+
 
 /// 保存最近登录时间
 Future<void> saveRecentLoginDate() async {
@@ -112,14 +115,27 @@ String getRightNow() {
       '${now.second.toString().padLeft(2, '0')}';
 }
 
+
+GlobalKey barcodeKey = GlobalKey();
+
+Widget buildBarcodeWidget(String code) {
+  return RepaintBoundary(
+    key: barcodeKey,
+    child: BarcodeWidget(
+      barcode: Barcode.code128(),
+      data: code,
+      width: 384,
+      height: 128,
+      drawText: false, // 是否显示文字
+    ),
+  );
+}
+
 Future<Uint8List> widgetToImage(GlobalKey key) async {
-  final boundary =
-  key.currentContext!.findRenderObject() as RenderRepaintBoundary;
+  final boundary = key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
   final image = await boundary.toImage(pixelRatio: 3.0);
-  final byteData =
-  await image.toByteData(format: ui.ImageByteFormat.png);
+  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
   return byteData!.buffer.asUint8List();
 }
-
