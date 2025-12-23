@@ -32,6 +32,15 @@ class _OceanPayLoginPageState extends State<OceanPayLoginPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(
+      const AssetImage('images/img_login_bg.png'),
+      context,
+    );
+  }
+
+  @override
   void dispose() {
     _autoLoginWorker.dispose();
     super.dispose();
@@ -59,7 +68,7 @@ class _OceanPayLoginView extends GetView<LoginController> {
               Positioned.fill(
 
                 child: Image.asset(
-                  'images/login_bg.jpeg',
+                  'images/img_login_bg.png',
                   fit: BoxFit.cover,
                 ),
               ),

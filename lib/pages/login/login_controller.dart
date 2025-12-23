@@ -83,6 +83,7 @@ class LoginController extends GetxController {
 
   /// 登录
   Future<void> handleLogin({bool useToken = false}) async {
+    Get.offAllNamed(AppRoutes.home);
 
     if ((username.value.isEmpty || password.value.isEmpty) && !useToken) {
       showCenterToast("请输入用户名和密码", type: ToastType.warning);
@@ -94,7 +95,9 @@ class LoginController extends GetxController {
 
       // 获取 secureKey
       final ok = await _fetchSecureKey();
-      if (!ok) return;
+      if (!ok) {
+        return;
+      }
 
       final prefs =  SimplePrefs.instance;
       dynamic localUser = prefs.getString('user_data');

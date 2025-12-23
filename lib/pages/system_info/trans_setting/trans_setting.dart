@@ -85,7 +85,6 @@ class _TransSettingsPageState extends State<TransSettingsPage> {
                       "passwordSettlement": passwordSettlement,
                       "passwordVoid": passwordVoid,
                     };
-                    print("Saved settings: $settings");
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Settings saved")),
                     );

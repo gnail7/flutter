@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:op_flutter/theme/app_colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -56,7 +57,7 @@ class _AboutPageState extends State<AboutPage> {
       appBar: AppBar(
         title: const Text("About Us"),
         centerTitle: true,
-        backgroundColor: const Color(0xFF2AA75A),
+        backgroundColor: AppColor.primaryColor,
         elevation: 0,
         foregroundColor: Colors.white,
         leading: IconButton(

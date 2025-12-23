@@ -1,24 +1,73 @@
 import 'dart:typed_data';
-import 'package:barcode_widget/barcode_widget.dart';
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
-Future<Uint8List?> generateBarcodeImage(String data, {double width = 200, double height = 80}) async {
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:barcode_widget/barcode_widget.dart';
+
+/// 用字符串生成「可打印的二维码 Bitmap」
+Future<Uint8List> generateQrImage(
+    String data, {
+      double size = 180,
+    }) async {
   final key = GlobalKey();
+
+  // 1️⃣ 构建二维码 Widget（不显示在 UI 上）
   final widget = RepaintBoundary(
     key: key,
-    child: BarcodeWidget(
-      barcode: Barcode.code128(),
-      data: data,
-      width: width,
-      height: height,
+    child: Material(
+      color: Colors.white,
+      child: BarcodeWidget(
+        barcode: Barcode.qrCode(),
+        data: data,
+        width: size,
+        height: size,
+      ),
     ),
   );
 
-  // 需要在 Flutter Widget 树中渲染才能 capture
-  // 如果你使用蓝牙打印机 SDK，有些 SDK 提供直接打印 Widget 或 image 方法
-  // 这里提供思路
-  // 例如使用 esc_pos_printer 可以直接打印图片：
-  // final imageBytes = await widgetToImageBytes(widget);
-  return null; // placeholder
+  // 2️⃣ 渲染 Widget（离屏）
+  final boundary = await _renderOffstage(widget, key);
+
+  // 3️⃣ 转成 Bitmap
+  final image = await boundary.toImage(pixelRatio: 3.0);
+  final byteData =
+  await image.toByteData(format: ui.ImageByteFormat.png);
+
+  return byteData!.buffer.asUint8List();
+}
+
+/// 内部方法：把 Widget 渲染成 RenderRepaintBoundary
+Future<RenderRepaintBoundary> _renderOffstage(
+    Widget widget,
+    GlobalKey key,
+    ) async {
+  final repaintBoundary = RenderRepaintBoundary();
+
+  final pipelineOwner = PipelineOwner();
+  final buildOwner = BuildOwner(focusManager: FocusManager());
+
+  final renderView = RenderView(
+    view: WidgetsBinding.instance.platformDispatcher.views.first,
+    configuration: const ViewConfiguration(
+      devicePixelRatio: 3,
+    ),
+    child: RenderPositionedBox(
+      alignment: Alignment.center,
+      child: repaintBoundary,
+    ),
+  );
+
+  pipelineOwner.rootNode = renderView;
+  renderView.prepareInitialFrame();
+
+  final element = widget.createElement();
+  buildOwner.buildScope(element);
+  buildOwner.finalizeTree();
+
+  pipelineOwner.flushLayout();
+  pipelineOwner.flushCompositingBits();
+  pipelineOwner.flushPaint();
+
+  return repaintBoundary;
 }
